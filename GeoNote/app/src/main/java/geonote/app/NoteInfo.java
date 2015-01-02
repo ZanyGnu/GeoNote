@@ -70,4 +70,16 @@ public class NoteInfo {
 
         return this;
     }
+
+    public String toString()
+    {
+        String notesText = "";
+
+        for(String noteText: this.getNotes())
+        {
+            notesText += noteText + "\n";
+        }
+
+        return notesText;
+    }
 }

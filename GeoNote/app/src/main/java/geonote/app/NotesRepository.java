@@ -3,6 +3,7 @@ package geonote.app;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Ajay on 1/1/2015.
@@ -14,18 +15,21 @@ public class NotesRepository {
     static final LatLng ADDRESS_14714 = new LatLng(47.735090, -122.159111);
     static final LatLng ADDRESS_14711 = new LatLng(47.734796, -122.159598);
 
-    public ArrayList<NoteInfo> Notes = new ArrayList<>();
+    public HashMap<LatLng, NoteInfo> Notes = new HashMap<LatLng, NoteInfo>();
 
     public NotesRepository()
     {
-        this.Notes.add(new NoteInfo()
+        this.Notes.put(VICTORS, new NoteInfo()
                 .LatLng(VICTORS)
                 .AddNote("Remember to ask for extra hot")
                 .AddNote("Ask for cups explicitly"));
-        this.Notes.add(new NoteInfo()
+
+        this.Notes.put(ADDRESS_14711, new NoteInfo()
                 .LatLng(ADDRESS_14711)
-                .AddNote("Remember you are at home"));
-        this.Notes.add(new NoteInfo()
+                .AddNote("Remember you are at home")
+                .AddNote("Need to do something."));
+
+        this.Notes.put(ADDRESS_14714, new NoteInfo()
                 .LatLng(ADDRESS_14714)
                 .AddNote("Ask them to come home for a party?"));
 
