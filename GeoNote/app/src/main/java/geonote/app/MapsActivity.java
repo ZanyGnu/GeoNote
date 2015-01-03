@@ -1,13 +1,12 @@
 package geonote.app;
 
-import android.content.Context;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.location.LocationManager;
-import android.view.View;
+import android.view.LayoutInflater;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,13 +33,14 @@ public class MapsActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_main);
         setUpNotesRepository();
         setUpMapIfNeeded();
     }
 
     private void setUpNotesRepository() {
-        notesRepostiory = new NotesRepository();
+        Geocoder gcd = new Geocoder(this.getBaseContext(), Locale.getDefault());
+        notesRepostiory = new NotesRepository(gcd);
     }
 
     @Override
@@ -112,6 +112,10 @@ public class MapsActivity extends FragmentActivity {
                 }
             }
         );
+
+        LayoutInflater layoutInflater = getLayoutInflater();
+
+        googleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.notesRepostiory));
     }
 
     private void addMarkersFromNotes() {
@@ -128,36 +132,7 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    private Address getAddressFromLatLng(Context baseContext, LatLng latLng)
-    {
-        Geocoder gcd = new Geocoder(baseContext, Locale.getDefault());
-        List<Address> addresses;
 
-        try {
-            addresses = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            if (addresses.size() > 0) {
-                return addresses.get(0);
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public class NoteInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
-
-        @Override
-        public View getInfoWindow(Marker marker) {
-            return null;
-        }
-
-        @Override
-        public View getInfoContents(Marker marker) {
-            return null;
-        }
-    }
 
 
     public String ConvertPointToLocation(double pointlat, double pointlog) {
