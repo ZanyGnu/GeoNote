@@ -6,7 +6,9 @@ import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.location.LocationManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends ActionBarActivity {
 
     static LatLng LKG_CURRENT_LOCATION = new LatLng(47.734796, -122.159598);
 
@@ -36,6 +38,13 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         setUpNotesRepository();
         setUpMapIfNeeded();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     private void setUpNotesRepository() {
@@ -116,6 +125,20 @@ public class MapsActivity extends FragmentActivity {
         LayoutInflater layoutInflater = getLayoutInflater();
 
         googleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.notesRepostiory));
+
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                // bring up location and address
+                googleMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .draggable(true)
+                        .flat(true)
+                        .title("Added Location #")
+                        .snippet("Custom added "));
+            }
+        });
     }
 
     private void addMarkersFromNotes() {
@@ -131,8 +154,6 @@ public class MapsActivity extends FragmentActivity {
                     .snippet(note.toString()));
         }
     }
-
-
 
 
     public String ConvertPointToLocation(double pointlat, double pointlog) {
