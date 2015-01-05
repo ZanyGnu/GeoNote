@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="geonote.app.NoteViewActivity"
+    android:weightSum="1">
+
+
+    <TextView android:text="Address :"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:singleLine="false"/>
+
+    <TextView android:text="Address"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:singleLine="false"
+        android:id="@+id/txtNoteViewAddress"/>
+
+    <TextView android:text="Notes :"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:singleLine="false"/>
+
+    <EditText android:text="add notes here"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:singleLine="false"
+        android:maxLines="10"
+        android:backgroundTint="#ff80cbc4"
+        android:id="@+id/editTextNoteView"
+        android:hint="add notes here"
+        android:typeface="sans"
+        android:layout_weight="0.33"
+        android:gravity="top" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_weight="0.33"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonNoteActivitySave"
+            android:layout_width="match_parent"
+            android:text="Save"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33" />
+
+        <Button
+            android:id="@+id/buttonNoteActivityCancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_weight="0.33" />
+    </LinearLayout>
+</LinearLayout>

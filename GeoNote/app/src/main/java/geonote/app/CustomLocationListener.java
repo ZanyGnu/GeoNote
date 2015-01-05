@@ -29,10 +29,12 @@ public class CustomLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location loc) {
+        /*
         Toast.makeText(
                 baseContext,
                 "Location changed: Lat: " + loc.getLatitude() + " Lng: "
                         + loc.getLongitude(), Toast.LENGTH_SHORT).show();
+        */
 
         String longitude = "Longitude: " + loc.getLongitude();
         Log.v(TAG, longitude);
@@ -56,7 +58,7 @@ public class CustomLocationListener implements LocationListener {
         }
 
         String s = longitude + "\n" + latitude + "\n\nMy Current City is: " + cityName;
-        Toast.makeText(baseContext, s, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(baseContext, s, Toast.LENGTH_SHORT).show();
     }
 
     @Override

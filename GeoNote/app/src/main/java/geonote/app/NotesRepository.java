@@ -51,7 +51,12 @@ public class NotesRepository {
 
     private Address getAddressFromLatLng(LatLng latLng)
     {
-        if (this.geocoder == null)
+        return NotesRepository.getAddressFromLatLng(this.geocoder, latLng);
+    }
+
+    public static Address getAddressFromLatLng(Geocoder geocoder, LatLng latLng) {
+
+        if (geocoder == null)
         {
             return null;
         }
@@ -59,7 +64,7 @@ public class NotesRepository {
         List<Address> addresses;
 
         try {
-            addresses = this.geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (addresses.size() > 0) {
                 return addresses.get(0);
             }

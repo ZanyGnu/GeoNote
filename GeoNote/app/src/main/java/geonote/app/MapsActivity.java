@@ -1,5 +1,7 @@
 package geonote.app;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -31,11 +33,15 @@ public class MapsActivity extends ActionBarActivity {
 
     private GoogleMap googleMap; // Might be null if Google Play services APK is not available.
     private NotesRepository notesRepostiory;
+    Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.geocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
+
         setUpNotesRepository();
         setUpMapIfNeeded();
     }
@@ -48,8 +54,8 @@ public class MapsActivity extends ActionBarActivity {
     }
 
     private void setUpNotesRepository() {
-        Geocoder gcd = new Geocoder(this.getBaseContext(), Locale.getDefault());
-        notesRepostiory = new NotesRepository(gcd);
+
+        notesRepostiory = new NotesRepository(this.geocoder);
     }
 
     @Override
@@ -83,6 +89,7 @@ public class MapsActivity extends ActionBarActivity {
      */
     private void setUpMap() {
 
+        final Activity currentActivity = this;
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         UiSettings uiSettings = googleMap.getUiSettings();
@@ -115,9 +122,15 @@ public class MapsActivity extends ActionBarActivity {
                     LatLng position = marker.getPosition();
                     NoteInfo noteInfo = notesRepostiory.Notes.get(position);
 
+                    /*
                     Toast.makeText(getBaseContext(),
                             noteInfo.toString(),
                             Toast.LENGTH_LONG).show();
+                    */
+
+                    Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
+                    myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+                    currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
                 }
             }
         );
@@ -129,32 +142,55 @@ public class MapsActivity extends ActionBarActivity {
         googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                // bring up location and address
-                googleMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                        .draggable(true)
-                        .flat(true)
-                        .title("Added Location #")
-                        .snippet("Custom added "));
+
+                NoteInfo note = null;
+                if(!notesRepostiory.Notes.containsKey(latLng))
+                {
+                    note = new NoteInfo()
+                            .LatLng(latLng)
+                            .Address(NotesRepository.getAddressFromLatLng(geocoder, latLng));
+                    notesRepostiory.Notes.put(latLng, note);
+                }
+
+                note = notesRepostiory.Notes.get(latLng);
+
+                Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
+                myIntent.putExtra("noteInfoExtra", note); //Optional parameters
+                currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
             }
         });
     }
 
-    private void addMarkersFromNotes() {
+    public static final int NOTE_VIEW_ACTIVITY = 1;
 
-        int locationNum = 0;
-        for (NoteInfo note: notesRepostiory.Notes.values()) {
-            googleMap.addMarker(new MarkerOptions()
-                    .position(note.getLatLng())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .draggable(true)
-                    .flat(true)
-                    .title("Location #" + ++locationNum)
-                    .snippet(note.toString()));
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // If the request went well (OK) and the request was NOTE_VIEW_ACTIVITY
+        if (resultCode == Activity.RESULT_OK && requestCode == NOTE_VIEW_ACTIVITY) {
+            NoteInfo noteInfo = data.getParcelableExtra("result");
+
+            // replace existing note with new note.
+            this.notesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
+
+            // add the note to the map
+            addNoteMarkerToMap(noteInfo);
         }
     }
 
+    private void addMarkersFromNotes() {
+        for (NoteInfo note: notesRepostiory.Notes.values()) {
+            addNoteMarkerToMap(note);
+        }
+    }
+
+    private void addNoteMarkerToMap(NoteInfo note) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(note.getLatLng())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .draggable(true)
+                .flat(true)
+                .title("Location")
+                .snippet(note.toString()));
+    }
 
     public String ConvertPointToLocation(double pointlat, double pointlog) {
 
