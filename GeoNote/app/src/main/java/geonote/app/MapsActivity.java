@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.location.LocationManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,8 +28,9 @@ import java.util.Locale;
 public class MapsActivity extends ActionBarActivity {
 
     static LatLng LKG_CURRENT_LOCATION = new LatLng(47.734796, -122.159598);
+    static final int NOTE_VIEW_ACTIVITY = 1;
 
-    private GoogleMap googleMap; // Might be null if Google Play services APK is not available.
+    private GoogleMap googleMap;
     private NotesRepository notesRepostiory;
     Geocoder geocoder;
 
@@ -54,7 +53,6 @@ public class MapsActivity extends ActionBarActivity {
     }
 
     private void setUpNotesRepository() {
-
         notesRepostiory = new NotesRepository(this.geocoder);
     }
 
@@ -88,7 +86,6 @@ public class MapsActivity extends ActionBarActivity {
      * This should only be called once and when we are sure that {@link #googleMap} is not null.
      */
     private void setUpMap() {
-
         final Activity currentActivity = this;
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -122,12 +119,6 @@ public class MapsActivity extends ActionBarActivity {
                     LatLng position = marker.getPosition();
                     NoteInfo noteInfo = notesRepostiory.Notes.get(position);
 
-                    /*
-                    Toast.makeText(getBaseContext(),
-                            noteInfo.toString(),
-                            Toast.LENGTH_LONG).show();
-                    */
-
                     Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                     myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
                     currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
@@ -160,8 +151,6 @@ public class MapsActivity extends ActionBarActivity {
             }
         });
     }
-
-    public static final int NOTE_VIEW_ACTIVITY = 1;
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If the request went well (OK) and the request was NOTE_VIEW_ACTIVITY
