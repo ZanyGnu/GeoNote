@@ -5,8 +5,14 @@ import android.location.Address;
 import android.location.Geocoder;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +35,9 @@ public class NotesRepository {
     public NotesRepository(Geocoder geocoder)
     {
         this.geocoder = geocoder;
+    }
 
+    public void populateDefaultValues() {
         this.Notes.put(VICTORS, new NoteInfo()
                 .LatLng(VICTORS)
                 .Address(getAddressFromLatLng(VICTORS))
@@ -46,7 +54,6 @@ public class NotesRepository {
                 .LatLng(ADDRESS_14714)
                 .Address(getAddressFromLatLng(ADDRESS_14714))
                 .AddNote("Ask them to come home for a party?"));
-
     }
 
     private Address getAddressFromLatLng(LatLng latLng)
@@ -76,4 +83,33 @@ public class NotesRepository {
         return null;
     }
 
+    public String serializeToJson()
+    {
+        GsonBuilder builder = new GsonBuilder();
+
+        Gson gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().create();
+        Type type = new TypeToken<HashMap<LatLng, NoteInfo>>(){}.getType();
+        String json = gson.toJson(this.Notes, type);
+        System.out.println(json);
+
+        return json;
+    }
+
+    public void deserializeFromJson(String jsonString)
+    {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().create();
+        Type type = new TypeToken<HashMap<LatLng, NoteInfo>>(){}.getType();
+
+        HashMap<LatLng, NoteInfo> notes = gson.fromJson(jsonString, type);
+
+        if (notes != null)
+        {
+            this.Notes = notes;
+        }
+        else
+        {
+            this.populateDefaultValues();
+        }
+    }
 }

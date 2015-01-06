@@ -2,11 +2,12 @@ package geonote.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
-import android.os.Bundle;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,15 +21,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-
 
 public class MapsActivity extends ActionBarActivity {
 
     static LatLng LKG_CURRENT_LOCATION = new LatLng(47.734796, -122.159598);
     static final int NOTE_VIEW_ACTIVITY = 1;
+    static final String PREFS_NOTES = "GeoNote.Preferences.V1";
+    static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
 
     private GoogleMap googleMap;
     private NotesRepository notesRepostiory;
@@ -37,11 +41,13 @@ public class MapsActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         this.geocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
         setUpNotesRepository();
+
         setUpMapIfNeeded();
     }
 
@@ -53,7 +59,27 @@ public class MapsActivity extends ActionBarActivity {
     }
 
     private void setUpNotesRepository() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
+        String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
+
         notesRepostiory = new NotesRepository(this.geocoder);
+        notesRepostiory.deserializeFromJson(settingJson);
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
+
+        String notesJson = this.notesRepostiory.serializeToJson();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
+
+        // Commit the edits!
+        editor.commit();
     }
 
     @Override
@@ -179,24 +205,5 @@ public class MapsActivity extends ActionBarActivity {
                 .flat(true)
                 .title("Location")
                 .snippet(note.toString()));
-    }
-
-    public String ConvertPointToLocation(double pointlat, double pointlog) {
-
-        String address = "";
-        Geocoder geoCoder = new Geocoder(getApplicationContext(),
-                Locale.getDefault());
-        try {
-            List<Address> addresses = geoCoder.getFromLocation(pointlat,pointlog, 1);
-            if (addresses.size() > 0) {
-                for (int index = 0; index < addresses.get(0)
-                        .getMaxAddressLineIndex(); index++)
-                    address += addresses.get(0).getAddressLine(index) + " ";
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        return address;
     }
 }
