@@ -6,12 +6,19 @@ import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -27,9 +34,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-public class MapsActivity extends ActionBarActivity {
+public class MapsActivity
+        extends     ActionBarActivity
+        implements  GoogleApiClient.ConnectionCallbacks,
+                    GoogleApiClient.OnConnectionFailedListener,
+                    LocationListener {
 
-    static LatLng LKG_CURRENT_LOCATION = new LatLng(47.734796, -122.159598);
     static final int NOTE_VIEW_ACTIVITY = 1;
     static final String PREFS_NOTES = "GeoNote.Preferences.V1";
     static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
@@ -37,6 +47,9 @@ public class MapsActivity extends ActionBarActivity {
     private GoogleMap googleMap;
     private NotesRepository notesRepostiory;
     Geocoder geocoder;
+    private GoogleApiClient googleApiClient;
+    private Location lastLocation = null;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +57,23 @@ public class MapsActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
 
+        buildGoogleApiClient();
+
+        createLocationRequest();
+
         this.geocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
         setUpNotesRepository();
 
         setUpMapIfNeeded();
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
@@ -113,31 +138,13 @@ public class MapsActivity extends ActionBarActivity {
      */
     private void setUpMap() {
         final Activity currentActivity = this;
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         UiSettings uiSettings = googleMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setCompassEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
 
-        // Creating a criteria object to retrieve provider
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-
-        // Getting the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
-
         this.addMarkersFromNotes();
-
-        // Showing the current location in Google Map
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(LKG_CURRENT_LOCATION));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
-
-        locationManager.requestLocationUpdates(
-            provider,
-            5000,
-            10,
-            new CustomLocationListener(getApplicationContext()));
 
         googleMap.setOnInfoWindowClickListener(
             new GoogleMap.OnInfoWindowClickListener() {
@@ -205,5 +212,53 @@ public class MapsActivity extends ActionBarActivity {
                 .flat(true)
                 .title("Location")
                 .snippet(note.toString()));
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                googleApiClient);
+
+        startLocationUpdates();
+
+        if (lastLocation != null) {
+            // Showing the current location in Google Map
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+        }
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                googleApiClient,
+                mLocationRequest,
+                this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Toast.makeText(getBaseContext(),
+                "Connection failed",
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        // as of now we always move the map to where the current location is.
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
 }
