@@ -3,11 +3,8 @@ package geonote.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -28,10 +25,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity
@@ -44,11 +37,11 @@ public class MapsActivity
     static final String PREFS_NOTES = "GeoNote.Preferences.V1";
     static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
 
-    private GoogleMap googleMap;
-    private NotesRepository notesRepostiory;
-    Geocoder geocoder;
-    private GoogleApiClient googleApiClient;
-    private Location lastLocation = null;
+    private GoogleMap mGoogleMap;
+    private NotesRepository mNotesRepostiory;
+    Geocoder mGeocoder;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation = null;
     private LocationRequest mLocationRequest;
 
     @Override
@@ -61,7 +54,7 @@ public class MapsActivity
 
         createLocationRequest();
 
-        this.geocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
+        this.mGeocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
         setUpNotesRepository();
 
@@ -69,7 +62,7 @@ public class MapsActivity
     }
 
     protected synchronized void buildGoogleApiClient() {
-        googleApiClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
@@ -87,8 +80,8 @@ public class MapsActivity
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
         String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
 
-        notesRepostiory = new NotesRepository(this.geocoder);
-        notesRepostiory.deserializeFromJson(settingJson);
+        mNotesRepostiory = new NotesRepository(this.mGeocoder);
+        mNotesRepostiory.deserializeFromJson(settingJson);
     }
 
     @Override
@@ -99,7 +92,7 @@ public class MapsActivity
         // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
 
-        String notesJson = this.notesRepostiory.serializeToJson();
+        String notesJson = this.mNotesRepostiory.serializeToJson();
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
 
@@ -116,16 +109,16 @@ public class MapsActivity
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #googleMap} is not null.
+     * call {@link #setUpMap()} once when {@link #mGoogleMap} is not null.
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (googleMap == null) {
+        if (mGoogleMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+            mGoogleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
             // Check if we were successful in obtaining the map.
-            if (googleMap != null) {
+            if (mGoogleMap != null) {
                 setUpMap();
             }
         }
@@ -134,49 +127,48 @@ public class MapsActivity
     /**
      * This is where we can add markers or lines, add listeners or move the camera.
      * <p/>
-     * This should only be called once and when we are sure that {@link #googleMap} is not null.
+     * This should only be called once and when we are sure that {@link #mGoogleMap} is not null.
      */
     private void setUpMap() {
         final Activity currentActivity = this;
 
-        UiSettings uiSettings = googleMap.getUiSettings();
+        UiSettings uiSettings = mGoogleMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setCompassEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
 
         this.addMarkersFromNotes();
 
-        googleMap.setOnInfoWindowClickListener(
-            new GoogleMap.OnInfoWindowClickListener() {
-                public void onInfoWindowClick(Marker marker) {
-                    LatLng position = marker.getPosition();
-                    NoteInfo noteInfo = notesRepostiory.Notes.get(position);
+        mGoogleMap.setOnInfoWindowClickListener(
+                new GoogleMap.OnInfoWindowClickListener() {
+                    public void onInfoWindowClick(Marker marker) {
+                        LatLng position = marker.getPosition();
+                        NoteInfo noteInfo = mNotesRepostiory.Notes.get(position);
 
-                    Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
-                    myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
-                    currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
+                        Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
+                        myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+                        currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
+                    }
                 }
-            }
         );
 
         LayoutInflater layoutInflater = getLayoutInflater();
 
-        googleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.notesRepostiory));
+        mGoogleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.mNotesRepostiory));
 
-        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+        mGoogleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
 
                 NoteInfo note = null;
-                if(!notesRepostiory.Notes.containsKey(latLng))
-                {
+                if (!mNotesRepostiory.Notes.containsKey(latLng)) {
                     note = new NoteInfo()
                             .LatLng(latLng)
-                            .Address(NotesRepository.getAddressFromLatLng(geocoder, latLng));
-                    notesRepostiory.Notes.put(latLng, note);
+                            .Address(NotesRepository.getAddressFromLatLng(mGeocoder, latLng));
+                    mNotesRepostiory.Notes.put(latLng, note);
                 }
 
-                note = notesRepostiory.Notes.get(latLng);
+                note = mNotesRepostiory.Notes.get(latLng);
 
                 Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                 myIntent.putExtra("noteInfoExtra", note); //Optional parameters
@@ -191,7 +183,7 @@ public class MapsActivity
             NoteInfo noteInfo = data.getParcelableExtra("result");
 
             // replace existing note with new note.
-            this.notesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
+            this.mNotesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
 
             // add the note to the map
             addNoteMarkerToMap(noteInfo);
@@ -199,13 +191,13 @@ public class MapsActivity
     }
 
     private void addMarkersFromNotes() {
-        for (NoteInfo note: notesRepostiory.Notes.values()) {
+        for (NoteInfo note: mNotesRepostiory.Notes.values()) {
             addNoteMarkerToMap(note);
         }
     }
 
     private void addNoteMarkerToMap(NoteInfo note) {
-        googleMap.addMarker(new MarkerOptions()
+        mGoogleMap.addMarker(new MarkerOptions()
                 .position(note.getLatLng())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 .draggable(true)
@@ -216,16 +208,16 @@ public class MapsActivity
 
     @Override
     public void onConnected(Bundle connectionHint) {
-        lastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                googleApiClient);
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
 
         startLocationUpdates();
 
-        if (lastLocation != null) {
+        if (mLastLocation != null) {
             // Showing the current location in Google Map
 
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
         }
     }
 
@@ -238,7 +230,7 @@ public class MapsActivity
 
     protected void startLocationUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(
-                googleApiClient,
+                mGoogleApiClient,
                 mLocationRequest,
                 this);
     }
@@ -258,7 +250,7 @@ public class MapsActivity
     @Override
     public void onLocationChanged(Location location) {
         // as of now we always move the map to where the current location is.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude())));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
 }
