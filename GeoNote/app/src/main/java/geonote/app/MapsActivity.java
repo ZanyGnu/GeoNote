@@ -1,11 +1,16 @@
 package geonote.app;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashSet;
 import java.util.Locale;
 
 public class MapsActivity
@@ -43,6 +49,7 @@ public class MapsActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation = null;
     private LocationRequest mLocationRequest;
+    private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +146,7 @@ public class MapsActivity
         uiSettings.setCompassEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
         mGoogleMap.setMyLocationEnabled(true);
-        
+
         this.addMarkersFromNotes();
 
         mGoogleMap.setOnInfoWindowClickListener(
@@ -253,8 +260,72 @@ public class MapsActivity
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+        LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
         // as of now we always move the map to where the current location is.
         //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
         //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+
+        // check if there is a note in the nearby location.
+        float results[] = new float[1];
+
+        for(NoteInfo noteInfo: this.mNotesRepostiory.Notes.values())
+        {
+            Location.distanceBetween(
+                    mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude(),
+                    noteInfo.getLatLng().latitude,
+                    noteInfo.getLatLng().longitude,
+                    results
+            );
+
+            // if we have a note within about 100 meters from where we are, send a notification.
+            if (results[0] < 100)
+            {
+                // send the notification only if we havent already sent it.
+                // TODO - do we need to remember this for a time period too?
+                if(!mSentNotifications.contains(noteInfo)) {
+                    sendNotification(noteInfo.toString(), noteInfo);
+                    mSentNotifications.add(noteInfo);
+                }
+            }
+        }
+    }
+
+    protected void sendNotification(String notificationContents, NoteInfo noteInfo)
+    {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.notespin)
+                        .setContentTitle("Note available at nearby location")
+                        .setContentText(notificationContents);
+
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, NoteViewActivity.class);
+        resultIntent.putExtra("noteInfoExtra", noteInfo);
+
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(NoteViewActivity.class);
+
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(0, mBuilder.build());
     }
 }
