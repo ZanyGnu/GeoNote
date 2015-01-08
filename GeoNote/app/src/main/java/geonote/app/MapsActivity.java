@@ -39,7 +39,7 @@ public class MapsActivity
 
     private GoogleMap mGoogleMap;
     private NotesRepository mNotesRepostiory;
-    Geocoder mGeocoder;
+    private Geocoder mGeocoder;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation = null;
     private LocationRequest mLocationRequest;
@@ -67,6 +67,8 @@ public class MapsActivity
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -249,6 +251,7 @@ public class MapsActivity
 
     @Override
     public void onLocationChanged(Location location) {
+        mLastLocation = location;
         // as of now we always move the map to where the current location is.
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
