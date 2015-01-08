@@ -138,7 +138,8 @@ public class MapsActivity
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setCompassEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
-
+        mGoogleMap.setMyLocationEnabled(true);
+        
         this.addMarkersFromNotes();
 
         mGoogleMap.setOnInfoWindowClickListener(
@@ -253,7 +254,7 @@ public class MapsActivity
     public void onLocationChanged(Location location) {
         mLastLocation = location;
         // as of now we always move the map to where the current location is.
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
 }
