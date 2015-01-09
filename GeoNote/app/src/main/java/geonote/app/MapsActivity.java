@@ -31,7 +31,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class MapsActivity
         extends     ActionBarActivity
@@ -268,6 +271,8 @@ public class MapsActivity
 
         // check if there is a note in the nearby location.
         float results[] = new float[1];
+        float closestMatch = Integer.MAX_VALUE;
+        NoteInfo noteInfoToNotifyOn = null;
 
         for(NoteInfo noteInfo: this.mNotesRepostiory.Notes.values())
         {
@@ -280,15 +285,21 @@ public class MapsActivity
             );
 
             // if we have a note within about 100 meters from where we are, send a notification.
-            if (results[0] < 100)
-            {
-                // send the notification only if we havent already sent it.
-                // TODO - do we need to remember this for a time period too?
-                if(!mSentNotifications.contains(noteInfo)) {
-                    sendNotification(noteInfo.toString(), noteInfo);
-                    mSentNotifications.add(noteInfo);
+            if (results[0] < 100) {
+                if (closestMatch > results[0])
+                {
+                    closestMatch = results[0];
+                    noteInfoToNotifyOn = noteInfo;
                 }
             }
+        }
+
+
+        // send the notification from the closest note only if we havent already sent it.
+        // TODO - do we need to remember this for a time period too?
+        if(!mSentNotifications.contains(noteInfoToNotifyOn)) {
+            sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
+            mSentNotifications.add(noteInfoToNotifyOn);
         }
     }
 
