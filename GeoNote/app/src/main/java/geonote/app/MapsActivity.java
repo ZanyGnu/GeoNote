@@ -30,6 +30,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -42,9 +45,10 @@ public class MapsActivity
                     GoogleApiClient.OnConnectionFailedListener,
                     LocationListener {
 
-    static final int NOTE_VIEW_ACTIVITY = 1;
-    static final String PREFS_NOTES = "GeoNote.Preferences.V1";
-    static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
+    private static final int NOTE_VIEW_ACTIVITY = 1;
+    private static final String PREFS_NOTES = "GeoNote.Preferences.V1";
+    private static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
+    private static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
 
     private GoogleMap mGoogleMap;
     private NotesRepository mNotesRepostiory;
@@ -69,6 +73,8 @@ public class MapsActivity
         setUpNotesRepository();
 
         setUpMapIfNeeded();
+
+        checkForUpdates();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -116,6 +122,7 @@ public class MapsActivity
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        checkForCrashes();
     }
 
     /**
@@ -338,5 +345,20 @@ public class MapsActivity
 
         // mId allows you to update the notification later on.
         mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UpdateManager.unregister();
+    }
+
+    private void checkForCrashes() {
+        CrashManager.register(this, APP_ID);
+    }
+
+    private void checkForUpdates() {
+        // Remove this for store / production builds!
+        UpdateManager.register(this, APP_ID);
     }
 }

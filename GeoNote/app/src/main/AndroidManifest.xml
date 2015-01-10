@@ -41,6 +41,8 @@
             android:name=".NoteViewActivity"
             android:label="@string/title_activity_note_view" >
         </activity>
+
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
     </application>
 
 </manifest>
