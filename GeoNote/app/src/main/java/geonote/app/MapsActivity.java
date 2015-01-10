@@ -34,10 +34,7 @@ import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class MapsActivity
         extends     ActionBarActivity
@@ -301,12 +298,13 @@ public class MapsActivity
             }
         }
 
-
-        // send the notification from the closest note only if we havent already sent it.
-        // TODO - do we need to remember this for a time period too?
-        if(!mSentNotifications.contains(noteInfoToNotifyOn)) {
-            sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
-            mSentNotifications.add(noteInfoToNotifyOn);
+        if (noteInfoToNotifyOn != null) {
+            // send the notification from the closest note only if we havent already sent it.
+            // TODO - do we need to remember this for a time period too?
+            if (!mSentNotifications.contains(noteInfoToNotifyOn)) {
+                sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
+                mSentNotifications.add(noteInfoToNotifyOn);
+            }
         }
     }
 
