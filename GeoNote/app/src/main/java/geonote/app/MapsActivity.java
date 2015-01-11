@@ -7,6 +7,7 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.shamanland.fab.FloatingActionButton;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
@@ -51,6 +54,7 @@ public class MapsActivity
     private NotesRepository mNotesRepostiory;
     private Geocoder mGeocoder;
     private GoogleApiClient mGoogleApiClient;
+    private FloatingActionButton newNoteButton;
     private Location mLastLocation = null;
     private LocationRequest mLocationRequest;
     private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
@@ -60,6 +64,8 @@ public class MapsActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        setupNewNoteButton();
 
         buildGoogleApiClient();
 
@@ -72,6 +78,22 @@ public class MapsActivity
         setUpMapIfNeeded();
 
         checkForUpdates();
+    }
+
+    private void setupNewNoteButton() {
+        newNoteButton = (FloatingActionButton) findViewById(R.id.fabButton);
+        newNoteButton.setSize(FloatingActionButton.SIZE_MINI);
+        newNoteButton.setColor(Color.RED);
+        // NOTE invoke this method after setting new values!
+        newNoteButton.initBackground();
+        final Activity currentActivity = this;
+
+        newNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewNote(mGoogleMap.getCameraPosition().target, currentActivity);
+            }
+        });
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -177,21 +199,25 @@ public class MapsActivity
             @Override
             public void onMapLongClick(LatLng latLng) {
 
-                NoteInfo note = null;
-                if (!mNotesRepostiory.Notes.containsKey(latLng)) {
-                    note = new NoteInfo()
-                            .LatLng(latLng)
-                            .Address(NotesRepository.getAddressFromLatLng(mGeocoder, latLng));
-                    mNotesRepostiory.Notes.put(latLng, note);
-                }
-
-                note = mNotesRepostiory.Notes.get(latLng);
-
-                Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
-                myIntent.putExtra("noteInfoExtra", note); //Optional parameters
-                currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
+                addNewNote(latLng, currentActivity);
             }
         });
+    }
+
+    private void addNewNote(LatLng latLng, Activity currentActivity) {
+        NoteInfo note = null;
+        if (!mNotesRepostiory.Notes.containsKey(latLng)) {
+            note = new NoteInfo()
+                    .LatLng(latLng)
+                    .Address(NotesRepository.getAddressFromLatLng(mGeocoder, latLng));
+            mNotesRepostiory.Notes.put(latLng, note);
+        }
+
+        note = mNotesRepostiory.Notes.get(latLng);
+
+        Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
+        myIntent.putExtra("noteInfoExtra", note); //Optional parameters
+        currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
