@@ -31,7 +31,9 @@ public class NoteViewActivity extends ActionBarActivity {
         final EditText editText = (EditText) findViewById(R.id.editTextNoteView);
         editText.setText(noteInfo.toString());
 
+        final TextView addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
         Button saveButton = (Button) findViewById(R.id.buttonNoteActivitySave);
+
         saveButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -40,6 +42,7 @@ public class NoteViewActivity extends ActionBarActivity {
                 for (String note : editText.getText().toString().split("\n")) {
                     noteInfo.AddNote(note);
                 }
+                noteInfo.setAddressDetails(addressDetailsTextView.getText().toString());
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", noteInfo);

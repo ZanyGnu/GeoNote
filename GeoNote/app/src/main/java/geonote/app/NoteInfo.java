@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class NoteInfo implements Parcelable {
     private LatLng LatLng;
     private Address Address;
+    private String AddressDetails;
     private ArrayList<String> Notes;
 
     public LatLng getLatLng() {
@@ -28,6 +29,8 @@ public class NoteInfo implements Parcelable {
         return Address;
     }
 
+    public String getAddressDetails() { return this.AddressDetails; }
+
     public String getAddressString()
     {
         StringBuffer sb = new StringBuffer();
@@ -38,11 +41,14 @@ public class NoteInfo implements Parcelable {
         sb.append(this.Address.getCountryName());
 
         return sb.toString();
-
     }
 
     public void setAddress(Address address) {
         Address = address;
+    }
+
+    public void setAddressDetails(String addressDetails) {
+        this.AddressDetails = addressDetails;
     }
 
     public ArrayList<String> getNotes() {
@@ -97,6 +103,12 @@ public class NoteInfo implements Parcelable {
     public NoteInfo Address(Address address)
     {
         this.Address = address;
+        return this;
+    }
+
+    public NoteInfo AddressDetails(String addressDetails)
+    {
+        this.AddressDetails = addressDetails;
         return this;
     }
 
