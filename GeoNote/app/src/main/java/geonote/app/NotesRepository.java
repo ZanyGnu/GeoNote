@@ -1,6 +1,5 @@
 package geonote.app;
 
-import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
@@ -9,18 +8,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
-/**
- * Created by Ajay on 1/1/2015.
- */
 public class NotesRepository {
 
     static final LatLng MELBOURNE = new LatLng(-37.813, 144.962);

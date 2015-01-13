@@ -8,9 +8,6 @@ import java.util.ArrayList;
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by Ajay on 1/1/2015.
- */
 public class NoteInfo implements Parcelable {
     private LatLng LatLng;
     private Address Address;

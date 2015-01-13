@@ -10,9 +10,6 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-/**
- * Created by Ajay on 1/2/2015.
- */
 public class NoteInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     private LayoutInflater layoutInflater;
