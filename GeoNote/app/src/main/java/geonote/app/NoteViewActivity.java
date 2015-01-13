@@ -7,11 +7,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
-
 
 public class NoteViewActivity extends ActionBarActivity {
 
@@ -34,6 +34,8 @@ public class NoteViewActivity extends ActionBarActivity {
         final TextView addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
         Button saveButton = (Button) findViewById(R.id.buttonNoteActivitySave);
 
+        final CheckBox checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
+
         saveButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -42,7 +44,8 @@ public class NoteViewActivity extends ActionBarActivity {
                 for (String note : editText.getText().toString().split("\n")) {
                     noteInfo.AddNote(note);
                 }
-                noteInfo.setAddressDetails(addressDetailsTextView.getText().toString());
+                noteInfo.AddressDetails(addressDetailsTextView.getText().toString())
+                        .EnableRaisingEvents(checkBoxEnableAlerts.isChecked());
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", noteInfo);

@@ -314,9 +314,10 @@ public class MapsActivity
                     results
             );
 
-            // if we have a note within about 100 meters from where we are, send a notification.
+            // if we have a note within about 100 meters from where we are,
+            // and the note requested for an alert, send a notification.
             if (results[0] < 100) {
-                if (closestMatch > results[0])
+                if (closestMatch > results[0] && noteInfo.getEnableRaisingEvents())
                 {
                     closestMatch = results[0];
                     noteInfoToNotifyOn = noteInfo;

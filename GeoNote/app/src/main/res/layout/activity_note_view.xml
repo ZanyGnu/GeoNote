@@ -76,7 +76,11 @@
             android:gravity="top" >
             <requestFocus />
         </EditText>
-
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable alerts when near location"
+            android:id="@+id/checkboxEnableAlerts"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_weight="0.33"

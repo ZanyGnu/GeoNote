@@ -15,6 +15,7 @@ public class NoteInfo implements Parcelable {
     private LatLng LatLng;
     private Address Address;
     private String AddressDetails;
+    private Boolean EnableRaisingEvents;
     private ArrayList<String> Notes;
 
     public LatLng getLatLng() {
@@ -51,6 +52,19 @@ public class NoteInfo implements Parcelable {
         this.AddressDetails = addressDetails;
     }
 
+    public Boolean getEnableRaisingEvents() {
+        if (this.EnableRaisingEvents == null)
+        {
+            return false;
+        }
+
+        return this.EnableRaisingEvents;
+    }
+
+    public void setEnableRaisingEvents(Boolean enableRaisingEvents) {
+        this.EnableRaisingEvents = enableRaisingEvents;
+    }
+
     public ArrayList<String> getNotes() {
         return Notes;
     }
@@ -70,6 +84,8 @@ public class NoteInfo implements Parcelable {
         this.LatLng = parcel.readParcelable(com.google.android.gms.maps.model.LatLng.class.getClassLoader());
         this.Address = parcel.readParcelable(android.location.Address.class.getClassLoader());
         parcel.readStringList(this.Notes);
+        this.AddressDetails  = parcel.readString();
+        this.EnableRaisingEvents = parcel.readByte() != 0;
     }
 
     @Override
@@ -77,6 +93,8 @@ public class NoteInfo implements Parcelable {
         dest.writeParcelable(this.LatLng, flags);
         dest.writeParcelable(this.Address, flags);
         dest.writeStringList(this.Notes);
+        dest.writeString(this.AddressDetails);
+        dest.writeByte((byte) (this.getEnableRaisingEvents() ? 1 : 0));
     }
 
     public static final Parcelable.Creator<NoteInfo> CREATOR = new Parcelable.Creator<NoteInfo>() {
@@ -109,6 +127,12 @@ public class NoteInfo implements Parcelable {
     public NoteInfo AddressDetails(String addressDetails)
     {
         this.AddressDetails = addressDetails;
+        return this;
+    }
+
+    public NoteInfo EnableRaisingEvents(Boolean enableRaisingEvents)
+    {
+        this.EnableRaisingEvents = enableRaisingEvents;
         return this;
     }
 
