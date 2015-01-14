@@ -341,6 +341,7 @@ public class MapsActivity
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notespin)
                         .setContentTitle("Note available at nearby location")
+                        .setAutoCancel(true)
                         .setContentText(notificationContents);
 
         // Creates an explicit intent for an Activity in your app
