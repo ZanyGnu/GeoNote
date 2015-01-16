@@ -13,6 +13,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import geonote.app.Model.PlaceDetails;
+import geonote.app.Model.PlacesList;
+
 public class NoteViewActivity extends ActionBarActivity {
 
     NoteInfo noteInfo;
@@ -25,15 +28,24 @@ public class NoteViewActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_note_view);
 
+        final TextView addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
+
+        PlaceDetails placeDetails = tryGetPlaceDetails(noteInfo);
+        if (placeDetails != null
+                && noteInfo.getAddressDetails()!= null
+                && noteInfo.getAddressDetails() != ""){
+            addressDetailsTextView.setText(placeDetails.result.name);
+        } else {
+            addressDetailsTextView.setText(noteInfo.getAddressDetails());
+        }
+
         TextView textView = (TextView) findViewById(R.id.txtNoteViewAddress);
         textView.setText(noteInfo.getAddressString());
 
         final EditText editText = (EditText) findViewById(R.id.editTextNoteView);
         editText.setText(noteInfo.toString());
 
-        final TextView addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
         Button saveButton = (Button) findViewById(R.id.buttonNoteActivitySave);
-
         final CheckBox checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
 
         saveButton.setOnClickListener(new View.OnClickListener()
@@ -63,6 +75,24 @@ public class NoteViewActivity extends ActionBarActivity {
                 finish();
             }
         });
+    }
+
+    private PlaceDetails tryGetPlaceDetails(NoteInfo noteInfo) {
+        try {
+            GooglePlaces googlePlaces = new GooglePlaces(getString(R.string.google_maps_key));
+            
+            // Moscone Center, Howard Street, San Francisco, CA, United States
+            PlacesList placesList = googlePlaces.searchForPlaces(new LatLng(37.784147, -122.402115), 20);
+
+            // pick the first place
+            PlaceDetails placeDetails = googlePlaces.getPlaceDetails(placesList.results.get(0));
+            return placeDetails;
+        }
+        catch (Exception e) {
+            // best effort
+        }
+
+        return null;
     }
 
     @Override
