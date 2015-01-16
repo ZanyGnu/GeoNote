@@ -80,7 +80,7 @@ public class NoteViewActivity extends ActionBarActivity {
     private PlaceDetails tryGetPlaceDetails(NoteInfo noteInfo) {
         try {
             GooglePlaces googlePlaces = new GooglePlaces(getString(R.string.google_maps_key));
-            
+
             // Moscone Center, Howard Street, San Francisco, CA, United States
             PlacesList placesList = googlePlaces.searchForPlaces(new LatLng(37.784147, -122.402115), 20);
 
