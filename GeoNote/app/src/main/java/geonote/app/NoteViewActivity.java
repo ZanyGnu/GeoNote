@@ -1,6 +1,7 @@
 package geonote.app;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,12 +14,16 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import geonote.app.Model.Place;
 import geonote.app.Model.PlaceDetails;
 import geonote.app.Model.PlacesList;
 
 public class NoteViewActivity extends ActionBarActivity {
 
     NoteInfo noteInfo;
+    GooglePlaces googlePlaces = null;
+
+    TextView addressDetailsTextView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,16 +33,18 @@ public class NoteViewActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_note_view);
 
-        final TextView addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
+        this.addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
 
-        PlaceDetails placeDetails = tryGetPlaceDetails(noteInfo);
-        if (placeDetails != null
-                && noteInfo.getAddressDetails()!= null
-                && noteInfo.getAddressDetails() != ""){
-            addressDetailsTextView.setText(placeDetails.result.name);
-        } else {
-            addressDetailsTextView.setText(noteInfo.getAddressDetails());
-        }
+        //if (noteInfo.getAddressDetails()!= null
+        //    && noteInfo.getAddressDetails() != ""){
+
+            // the value is empty, and we probably havent found details on the place yet.
+            // execute a background task to find the details.
+            new LoadPlaces().execute();
+
+        //} else {
+        //    addressDetailsTextView.setText(noteInfo.getAddressDetails());
+        //}
 
         TextView textView = (TextView) findViewById(R.id.txtNoteViewAddress);
         textView.setText(noteInfo.getAddressString());
@@ -77,24 +84,6 @@ public class NoteViewActivity extends ActionBarActivity {
         });
     }
 
-    private PlaceDetails tryGetPlaceDetails(NoteInfo noteInfo) {
-        try {
-            GooglePlaces googlePlaces = new GooglePlaces(getString(R.string.google_maps_key));
-
-            // Moscone Center, Howard Street, San Francisco, CA, United States
-            PlacesList placesList = googlePlaces.searchForPlaces(new LatLng(37.784147, -122.402115), 20);
-
-            // pick the first place
-            PlaceDetails placeDetails = googlePlaces.getPlaceDetails(placesList.results.get(0));
-            return placeDetails;
-        }
-        catch (Exception e) {
-            // best effort
-        }
-
-        return null;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -115,5 +104,49 @@ public class NoteViewActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    class LoadPlaces extends AsyncTask<String, String, String> {
+
+        PlaceDetails placeDetails;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            googlePlaces = new GooglePlaces(getString(R.string.google_maps_key));
+        }
+
+        protected String doInBackground(String... args) {
+            try {
+                PlacesList placesList = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 100);
+
+                // pick the first place
+                this.placeDetails = googlePlaces.getPlaceDetails(placesList.results.get(0));
+
+            } catch (Exception e) {
+                System.out.println("Unhandled exception trying to get google places details: " + e.toString());
+            }
+            return null;
+        }
+
+        /**
+         * After completing background task show the data in UI
+         * Use runOnUiThread(new Runnable()) to update UI from background
+         * **/
+        protected void onPostExecute(String file_url) {
+            // updating UI from Background Thread
+            runOnUiThread(new Runnable() {
+                public void run() {
+
+                    if (placeDetails != null){
+                        addressDetailsTextView.setText(placeDetails.result.name);
+                    }
+
+                    String status = placeDetails.status;
+                    System.out.println("Result of google places query: " + status);
+                }
+            });
+        }
     }
 }

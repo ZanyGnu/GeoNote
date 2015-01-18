@@ -1,5 +1,7 @@
 package geonote.app;
 
+import android.os.AsyncTask;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
