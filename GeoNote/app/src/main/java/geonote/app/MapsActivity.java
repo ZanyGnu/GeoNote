@@ -245,7 +245,7 @@ public class MapsActivity
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 .draggable(true)
                 .flat(true)
-                .title("Location")
+                .title(note.getAddressDetails())
                 .snippet(note.toString()));
     }
 
