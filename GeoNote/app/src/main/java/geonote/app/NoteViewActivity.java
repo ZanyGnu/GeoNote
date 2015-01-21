@@ -115,7 +115,6 @@ public class NoteViewActivity extends ActionBarActivity {
 
     class LoadPlaces extends AsyncTask<String, String, String> {
 
-        PlaceDetails placeDetails;
         List<Place> placesList;
 
         @Override
@@ -127,10 +126,6 @@ public class NoteViewActivity extends ActionBarActivity {
         protected String doInBackground(String... args) {
             try {
                 this.placesList = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 100).results;
-
-                // pick the first place
-                this.placeDetails = googlePlaces.getPlaceDetails(placesList.get(0));
-
             } catch (Exception e) {
                 System.out.println("Unhandled exception trying to get google places details: " + e.toString());
             }
@@ -145,14 +140,6 @@ public class NoteViewActivity extends ActionBarActivity {
             // updating UI from Background Thread
             runOnUiThread(new Runnable() {
                 public void run() {
-
-                    if (placeDetails != null){
-                        addressDetailsTextView.setText(placeDetails.result.name);
-                    }
-
-                    String status = placeDetails.status;
-                    System.out.println("Result of google places query: " + status);
-
                     Spinner dropdown = (Spinner)findViewById(R.id.spinnerPlaceDetails);
                     dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
