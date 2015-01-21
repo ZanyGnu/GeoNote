@@ -7,12 +7,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import geonote.app.Model.Place;
 import geonote.app.Model.PlaceDetails;
@@ -110,6 +116,7 @@ public class NoteViewActivity extends ActionBarActivity {
     class LoadPlaces extends AsyncTask<String, String, String> {
 
         PlaceDetails placeDetails;
+        List<Place> placesList;
 
         @Override
         protected void onPreExecute() {
@@ -119,10 +126,10 @@ public class NoteViewActivity extends ActionBarActivity {
 
         protected String doInBackground(String... args) {
             try {
-                PlacesList placesList = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 100);
+                this.placesList = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 100).results;
 
                 // pick the first place
-                this.placeDetails = googlePlaces.getPlaceDetails(placesList.results.get(0));
+                this.placeDetails = googlePlaces.getPlaceDetails(placesList.get(0));
 
             } catch (Exception e) {
                 System.out.println("Unhandled exception trying to get google places details: " + e.toString());
@@ -145,6 +152,29 @@ public class NoteViewActivity extends ActionBarActivity {
 
                     String status = placeDetails.status;
                     System.out.println("Result of google places query: " + status);
+
+                    Spinner dropdown = (Spinner)findViewById(R.id.spinnerPlaceDetails);
+                    dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            addressDetailsTextView.setText(parent.getItemAtPosition(position).toString());
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+
+                        }
+                    });
+                    String[] items = new String[placesList.size()];
+
+                    int pos =0;
+                    for (Place place: placesList)
+                    {
+                        items[pos++] = place.name;
+                    }
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, items);
+                    dropdown.setAdapter(adapter);
                 }
             });
         }

@@ -11,71 +11,48 @@
         tools:context="geonote.app.NoteViewActivity"
         android:weightSum="1">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_weight="0.33"
+<FrameLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <EditText android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:maxLines="2"
+        android:hint="Place"
+        android:textSize="12dp"
+        android:id="@+id/txtNoteViewPlaceDetails" />
+    <Spinner
+        android:id="@+id/spinnerPlaceDetails"
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"
+        android:layout_width="45dp"
+        android:layout_height="25dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"/>
+
+    </FrameLayout>
+        <EditText android:text="Address"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_weight="0.33"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView android:text="Place details:"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:singleLine="false"/>
+            android:singleLine="false"
+            android:textSize="12dp"
+            android:id="@+id/txtNoteViewAddress"/>
 
-                <EditText android:layout_height="100dp"
-                    android:layout_width="match_parent"
-                    android:singleLine="false"
-                    android:maxLines="10"
-                    android:hint="add notes here"
-                    android:typeface="sans"
-                    android:gravity="top"
-                    android:id="@+id/txtNoteViewPlaceDetails"
-                    android:editable="true"
-                    android:nestedScrollingEnabled="true" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_weight="0.33"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView android:text="Address :"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:singleLine="false"/>
-
-                <TextView android:text="Address"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:singleLine="false"
-                    android:id="@+id/txtNoteViewAddress"/>
-            </LinearLayout>
-
-        </LinearLayout>
-        <TextView android:text="Notes :"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:singleLine="false"/>
-
-        <EditText android:text="add notes here"
+        <EditText android:text="Notes"
             android:layout_height="fill_parent"
             android:layout_width="match_parent"
             android:singleLine="false"
             android:maxLines="10"
-            android:backgroundTint="#ff80cbc4"
             android:id="@+id/editTextNoteView"
             android:hint="add notes here"
             android:typeface="sans"
             android:layout_weight="0.33"
+            android:height="100dp"
             android:gravity="top" >
             <requestFocus />
         </EditText>
+
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
