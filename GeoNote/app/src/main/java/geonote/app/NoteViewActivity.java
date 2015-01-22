@@ -30,6 +30,7 @@ public class NoteViewActivity extends ActionBarActivity {
     GooglePlaces googlePlaces = null;
 
     TextView addressDetailsTextView = null;
+    TextView addressTextView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +42,13 @@ public class NoteViewActivity extends ActionBarActivity {
 
         this.addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
 
-        //if (noteInfo.getAddressDetails()!= null
-        //    && noteInfo.getAddressDetails() != ""){
+        // execute a background task to populate the drop down choices for the place.
+        new LoadPlaces().execute();
 
-            // the value is empty, and we probably havent found details on the place yet.
-            // execute a background task to find the details.
-            new LoadPlaces().execute();
+        addressDetailsTextView.setText(noteInfo.getAddressDetails());
 
-        //} else {
-        //    addressDetailsTextView.setText(noteInfo.getAddressDetails());
-        //}
-
-        TextView textView = (TextView) findViewById(R.id.txtNoteViewAddress);
-        textView.setText(noteInfo.getAddressString());
+        addressTextView = (TextView) findViewById(R.id.txtNoteViewAddress);
+        addressTextView.setText(noteInfo.getAddressString());
 
         final EditText editText = (EditText) findViewById(R.id.editTextNoteView);
         editText.setText(noteInfo.toString());
@@ -115,7 +110,7 @@ public class NoteViewActivity extends ActionBarActivity {
 
     class LoadPlaces extends AsyncTask<String, String, String> {
 
-        List<Place> placesList;
+        ArrayList<Place> placesList = new ArrayList<Place>();
 
         @Override
         protected void onPreExecute() {
@@ -125,7 +120,10 @@ public class NoteViewActivity extends ActionBarActivity {
 
         protected String doInBackground(String... args) {
             try {
-                this.placesList = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 100).results;
+                List<Place> places = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 75).results;
+                for(Place place:places) {
+                    this.placesList.add(this.placesList.size(), googlePlaces.getPlaceDetails(place).result);
+                }
             } catch (Exception e) {
                 System.out.println("Unhandled exception trying to get google places details: " + e.toString());
             }
@@ -144,7 +142,23 @@ public class NoteViewActivity extends ActionBarActivity {
                     dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            addressDetailsTextView.setText(parent.getItemAtPosition(position).toString());
+                            if(parent.getItemAtPosition(position) != null) {
+                                String placeName = parent.getItemAtPosition(position).toString();
+                                addressDetailsTextView.setText(placeName);
+
+                                for(Place place:placesList)
+                                {
+                                    // find matching place, and change the address to that location
+
+                                    if (place.name == placeName &&
+
+                                            (place.formatted_address != null
+                                            || place.formatted_address != ""))
+                                    {
+                                        addressTextView.setText(place.formatted_address);
+                                    }
+                                }
+                            }
                         }
 
                         @Override
@@ -152,16 +166,18 @@ public class NoteViewActivity extends ActionBarActivity {
 
                         }
                     });
-                    String[] items = new String[placesList.size()];
 
-                    int pos =0;
-                    for (Place place: placesList)
-                    {
-                        items[pos++] = place.name;
+                    if (placesList!=null) {
+                        String[] items = new String[placesList.size() + 1];
+                        items[0] = null;
+                        int pos = 1;
+                        for (Place place : placesList) {
+                            items[pos++] = place.name;
+                        }
+
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, items);
+                        dropdown.setAdapter(adapter);
                     }
-
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, items);
-                    dropdown.setAdapter(adapter);
                 }
             });
         }
