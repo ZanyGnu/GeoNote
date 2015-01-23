@@ -1,6 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context="geonote.app.NoteViewActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="geonote.app.NoteViewActivity" >
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100" app:showAsAction="never"/>
+    <item android:id="@+id/action_save"
+        android:icon="@drawable/blue_save"
+        android:title="Save"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_cancel"
+        android:icon="@drawable/blue_cancel"
+        android:title="Cancel"
+        app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_delete"
+        android:icon="@drawable/blue_delete"
+        android:title="Delete"
+        app:showAsAction="ifRoom" />
 </menu>

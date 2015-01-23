@@ -38,7 +38,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:singleLine="false"
-            android:textSize="10dp"
+            android:textSize="9dp"
+            android:textColor="@color/accent_material_light"
             android:id="@+id/txtNoteViewAddress"/>
 
         <EditText android:text="Notes"
@@ -61,26 +62,5 @@
             android:layout_height="wrap_content"
             android:text="Enable alerts when near location"
             android:id="@+id/checkboxEnableAlerts"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_weight="0.33"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonNoteActivitySave"
-                android:layout_width="match_parent"
-                android:text="Save"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.33" />
-
-            <Button
-                android:id="@+id/buttonNoteActivityCancel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Cancel"
-                android:layout_weight="0.33" />
-        </LinearLayout>
-
     </LinearLayout>
 </ScrollView>

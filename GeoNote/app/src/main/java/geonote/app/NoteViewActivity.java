@@ -31,6 +31,8 @@ public class NoteViewActivity extends ActionBarActivity {
 
     TextView addressDetailsTextView = null;
     TextView addressTextView = null;
+    EditText editText = null;
+    CheckBox checkBoxEnableAlerts = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +50,39 @@ public class NoteViewActivity extends ActionBarActivity {
         addressDetailsTextView.setText(noteInfo.getAddressDetails());
 
         addressTextView = (TextView) findViewById(R.id.txtNoteViewAddress);
-        addressTextView.setText(noteInfo.getAddressString());
+        addressTextView.setText(noteInfo.getAddressString().replace('\n', ' '));
 
-        final EditText editText = (EditText) findViewById(R.id.editTextNoteView);
+        editText = (EditText) findViewById(R.id.editTextNoteView);
         editText.setText(noteInfo.toString());
 
-        Button saveButton = (Button) findViewById(R.id.buttonNoteActivitySave);
-        final CheckBox checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
+        checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
+    }
 
-        saveButton.setOnClickListener(new View.OnClickListener()
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_note_view, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        switch(id)
         {
-            @Override
-            public void onClick(View v) {
+            case R.id.action_settings:
+                break;
+            case R.id.action_cancel:
+                finish();
+                break;
+            case R.id.action_delete:
+                break;
+            case R.id.action_save:
                 noteInfo.getNotes().clear();
                 for (String note : editText.getText().toString().split("\n")) {
                     noteInfo.AddNote(note);
@@ -72,36 +95,8 @@ public class NoteViewActivity extends ActionBarActivity {
                 setResult(RESULT_OK,returnIntent);
 
                 finish();
-            }
-        });
+                break;
 
-        Button cancelButton = (Button) findViewById(R.id.buttonNoteActivityCancel);
-        cancelButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_note_view, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
