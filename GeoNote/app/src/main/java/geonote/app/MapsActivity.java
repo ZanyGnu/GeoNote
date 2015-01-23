@@ -267,6 +267,7 @@ public class MapsActivity
                 .flat(true)
                 .title(note.getAddressDetails())
                 .snippet(note.toString()));
+        marker.setVisible(true);
         marker.showInfoWindow();
         mMarkers.put(note.getLatLng(), marker);
     }
