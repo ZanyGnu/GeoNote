@@ -1,5 +1,6 @@
 package geonote.app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
+import geonote.app.Model.Constants;
 import geonote.app.Model.Place;
 import geonote.app.Model.PlaceDetails;
 import geonote.app.Model.PlacesList;
@@ -71,17 +73,24 @@ public class NoteViewActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Intent returnIntent = null;
 
         //noinspection SimplifiableIfStatement
         switch(id)
         {
             case R.id.action_settings:
                 break;
+
             case R.id.action_cancel:
-                finish();
+                returnFromActivity(RESULT_CANCELED, noteInfo);
                 break;
+
             case R.id.action_delete:
+
+                // TODO: Confirm from user if ok to delete.
+                returnFromActivity(Constants.RESULT_DELETE_NOTE, noteInfo);
                 break;
+
             case R.id.action_save:
                 noteInfo.getNotes().clear();
                 for (String note : editText.getText().toString().split("\n")) {
@@ -90,16 +99,21 @@ public class NoteViewActivity extends ActionBarActivity {
                 noteInfo.AddressDetails(addressDetailsTextView.getText().toString())
                         .EnableRaisingEvents(checkBoxEnableAlerts.isChecked());
 
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("result", noteInfo);
-                setResult(RESULT_OK,returnIntent);
+                returnFromActivity(RESULT_OK, noteInfo);
 
-                finish();
                 break;
-
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void returnFromActivity(int resultCode, NoteInfo resultObject) {
+        Intent returnIntent;
+        returnIntent = new Intent();
+        returnIntent.putExtra("result", resultObject);
+        setResult(resultCode, returnIntent);
+
+        finish();
     }
 
 

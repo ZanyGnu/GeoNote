@@ -36,8 +36,11 @@ import com.shamanland.fab.FloatingActionButton;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+
+import geonote.app.Model.Constants;
 
 public class MapsActivity
         extends     ActionBarActivity
@@ -58,6 +61,7 @@ public class MapsActivity
     private Location mLastLocation = null;
     private LocationRequest mLocationRequest;
     private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
+    private HashMap<LatLng, Marker> mMarkers = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,14 +226,25 @@ public class MapsActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If the request went well (OK) and the request was NOTE_VIEW_ACTIVITY
-        if (resultCode == Activity.RESULT_OK && requestCode == NOTE_VIEW_ACTIVITY) {
-            NoteInfo noteInfo = data.getParcelableExtra("result");
+        if (requestCode == NOTE_VIEW_ACTIVITY) {
+            NoteInfo noteInfo = null;
 
-            // replace existing note with new note.
-            this.mNotesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
+            switch (resultCode) {
+                case Activity.RESULT_OK:
+                    noteInfo = data.getParcelableExtra("result");
 
-            // add the note to the map
-            addNoteMarkerToMap(noteInfo);
+                    // replace existing note with new note.
+                    this.mNotesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
+
+                    // add the note to the map
+                    addNoteMarkerToMap(noteInfo);
+                    break;
+
+                case Constants.RESULT_DELETE_NOTE:
+                    noteInfo = data.getParcelableExtra("result");
+                    this.mNotesRepostiory.Notes.remove(noteInfo.getLatLng());
+                    removeNoteMarkerFromMap(noteInfo);
+            }
         }
     }
 
@@ -240,13 +255,26 @@ public class MapsActivity
     }
 
     private void addNoteMarkerToMap(NoteInfo note) {
-        mGoogleMap.addMarker(new MarkerOptions()
+        if (mMarkers.containsKey(note.getLatLng()))
+        {
+            mMarkers.get(note.getLatLng()).remove();
+        }
+
+        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(note.getLatLng())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .draggable(true)
+                .draggable(false)
                 .flat(true)
                 .title(note.getAddressDetails())
                 .snippet(note.toString()));
+        marker.showInfoWindow();
+        mMarkers.put(note.getLatLng(), marker);
+    }
+
+    private void removeNoteMarkerFromMap(NoteInfo noteInfo)
+    {
+        Marker marker = mMarkers.get(noteInfo.getLatLng());
+        marker.remove();
     }
 
     @Override

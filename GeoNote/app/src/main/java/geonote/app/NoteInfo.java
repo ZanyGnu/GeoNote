@@ -161,4 +161,9 @@ public class NoteInfo implements Parcelable {
 
         return notesText;
     }
+
+    @Override
+    public int hashCode() {
+        return this.getLatLng().hashCode() ^ this.getAddress().hashCode();
+    }
 }
