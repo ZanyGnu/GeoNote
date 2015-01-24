@@ -1,4 +1,4 @@
-package geonote.app.Model;
+package geonote.app;
 
 public class Constants {
 

@@ -1,6 +1,7 @@
 package geonote.app;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -40,8 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
-import geonote.app.Model.Constants;
-
 public class MapsActivity
         extends     ActionBarActivity
         implements  GoogleApiClient.ConnectionCallbacks,
@@ -54,7 +53,7 @@ public class MapsActivity
     private static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
 
     private GoogleMap mGoogleMap;
-    private NotesRepository mNotesRepostiory;
+    private NotesRepository mNotesRepository;
     private Geocoder mGeocoder;
     private GoogleApiClient mGoogleApiClient;
     private FloatingActionButton newNoteButton;
@@ -121,8 +120,8 @@ public class MapsActivity
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
         String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
 
-        mNotesRepostiory = new NotesRepository(this.mGeocoder);
-        mNotesRepostiory.deserializeFromJson(settingJson);
+        mNotesRepository = new NotesRepository(this.mGeocoder);
+        mNotesRepository.deserializeFromJson(settingJson);
     }
 
     @Override
@@ -133,7 +132,7 @@ public class MapsActivity
         // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
 
-        String notesJson = this.mNotesRepostiory.serializeToJson();
+        String notesJson = this.mNotesRepository.serializeToJson();
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
 
@@ -186,7 +185,7 @@ public class MapsActivity
                 new GoogleMap.OnInfoWindowClickListener() {
                     public void onInfoWindowClick(Marker marker) {
                         LatLng position = marker.getPosition();
-                        NoteInfo noteInfo = mNotesRepostiory.Notes.get(position);
+                        NoteInfo noteInfo = mNotesRepository.Notes.get(position);
 
                         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                         myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
@@ -197,7 +196,7 @@ public class MapsActivity
 
         LayoutInflater layoutInflater = getLayoutInflater();
 
-        mGoogleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.mNotesRepostiory));
+        mGoogleMap.setInfoWindowAdapter(new NoteInfoWindowAdapter(layoutInflater, this.mNotesRepository));
 
         mGoogleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -210,14 +209,14 @@ public class MapsActivity
 
     private void addNewNote(LatLng latLng, Activity currentActivity) {
         NoteInfo note = null;
-        if (!mNotesRepostiory.Notes.containsKey(latLng)) {
+        if (!mNotesRepository.Notes.containsKey(latLng)) {
             note = new NoteInfo()
                     .LatLng(latLng)
                     .Address(NotesRepository.getAddressFromLatLng(mGeocoder, latLng));
-            mNotesRepostiory.Notes.put(latLng, note);
+            mNotesRepository.Notes.put(latLng, note);
         }
 
-        note = mNotesRepostiory.Notes.get(latLng);
+        note = mNotesRepository.Notes.get(latLng);
 
         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
         myIntent.putExtra("noteInfoExtra", note); //Optional parameters
@@ -234,7 +233,7 @@ public class MapsActivity
                     noteInfo = data.getParcelableExtra("result");
 
                     // replace existing note with new note.
-                    this.mNotesRepostiory.Notes.put(noteInfo.getLatLng(), noteInfo);
+                    this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
 
                     // add the note to the map
                     addNoteMarkerToMap(noteInfo);
@@ -242,14 +241,14 @@ public class MapsActivity
 
                 case Constants.RESULT_DELETE_NOTE:
                     noteInfo = data.getParcelableExtra("result");
-                    this.mNotesRepostiory.Notes.remove(noteInfo.getLatLng());
+                    this.mNotesRepository.Notes.remove(noteInfo.getLatLng());
                     removeNoteMarkerFromMap(noteInfo);
             }
         }
     }
 
     private void addMarkersFromNotes() {
-        for (NoteInfo note: mNotesRepostiory.Notes.values()) {
+        for (NoteInfo note: mNotesRepository.Notes.values()) {
             addNoteMarkerToMap(note);
         }
     }
@@ -333,7 +332,7 @@ public class MapsActivity
         float closestMatch = Integer.MAX_VALUE;
         NoteInfo noteInfoToNotifyOn = null;
 
-        for(NoteInfo noteInfo: this.mNotesRepostiory.Notes.values())
+        for(NoteInfo noteInfo: this.mNotesRepository.Notes.values())
         {
             Location.distanceBetween(
                     mLastLocation.getLatitude(),
@@ -399,7 +398,11 @@ public class MapsActivity
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // mId allows you to update the notification later on.
-        mNotificationManager.notify(0, mBuilder.build());
+        Notification notification = mBuilder.build();
+        notification.defaults |= Notification.DEFAULT_SOUND;
+        notification.defaults |= Notification.DEFAULT_VIBRATE;
+        
+        mNotificationManager.notify(0, notification);
     }
 
     @Override
