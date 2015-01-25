@@ -1,6 +1,7 @@
 package geonote.app;
 
 import android.location.Address;
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -165,5 +166,20 @@ public class NoteInfo implements Parcelable {
     @Override
     public int hashCode() {
         return this.getLatLng().hashCode() ^ this.getAddress().hashCode();
+    }
+
+    public float getDistanceFrom(Location location)
+    {
+        float results[] = new float[1];
+
+        Location.distanceBetween(
+                location.getLatitude(),
+                location.getLongitude(),
+                this.getLatLng().latitude,
+                this.getLatLng().longitude,
+                results
+        );
+
+        return results[0];
     }
 }

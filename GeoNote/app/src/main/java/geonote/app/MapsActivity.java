@@ -52,6 +52,7 @@ public class MapsActivity
     private static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
     private static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
     private static final int GEO_FENCE_RADIUS = 100;
+    private static final int CURRNET_NOTIFICATION_ID=0;
 
     private GoogleMap mGoogleMap;
     private NotesRepository mNotesRepository;
@@ -63,6 +64,7 @@ public class MapsActivity
     private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
     private HashMap<LatLng, Marker> mMarkers = new HashMap<>();
     NotificationManager mNotificationManager = null;
+    private NoteInfo mCurrentShownNotificationNote = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,34 +327,21 @@ public class MapsActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
-        // as of now we always move the map to where the current location is.
-        //mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
-        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+        this.mLastLocation = location;
 
         // check if there is a note in the nearby location.
-        float results[] = new float[1];
         float closestMatch = Integer.MAX_VALUE;
         NoteInfo noteInfoToNotifyOn = null;
 
         for(NoteInfo noteInfo: this.mNotesRepository.Notes.values())
         {
-            Location.distanceBetween(
-                    mLastLocation.getLatitude(),
-                    mLastLocation.getLongitude(),
-                    noteInfo.getLatLng().latitude,
-                    noteInfo.getLatLng().longitude,
-                    results
-            );
-
             // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
             // and the note requested for an alert, send a notification.
-            if (results[0] < GEO_FENCE_RADIUS) {
-                if (closestMatch > results[0] && noteInfo.getEnableRaisingEvents())
+            float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
+            if (distanceFromNote < GEO_FENCE_RADIUS) {
+                if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
                 {
-                    closestMatch = results[0];
+                    closestMatch = distanceFromNote;
                     noteInfoToNotifyOn = noteInfo;
                 }
             }
@@ -367,29 +356,11 @@ public class MapsActivity
             }
         }
 
-        // Go through all posted notifications, and if the user is no longer
-        // close to that location remove the notification
-
-        for(NoteInfo noteInfo: this.mSentNotifications)
-        {
-            Location.distanceBetween(
-                    mLastLocation.getLatitude(),
-                    mLastLocation.getLongitude(),
-                    noteInfo.getLatLng().latitude,
-                    noteInfo.getLatLng().longitude,
-                    results
-            );
-
-            // if we have a note is outside of GEO_FENCE_RADIUS,
-            // cancel the sent notification.
-            if (results[0] >= GEO_FENCE_RADIUS) {
-                cancelNotification(noteInfo);
-            }
+        // if the posted notification is outside of GEO_FENCE_RADIUS,
+        // cancel the sent notification.
+        if (mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
+            mNotificationManager.cancel(CURRNET_NOTIFICATION_ID);
         }
-    }
-
-    protected void cancelNotification(NoteInfo noteInfo) {
-        mNotificationManager.cancel(noteInfo.hashCode());
     }
 
     protected void sendNotification(String notificationContents, NoteInfo noteInfo)
@@ -424,12 +395,12 @@ public class MapsActivity
 
         mBuilder.setContentIntent(resultPendingIntent);
 
-        // mId allows you to update the notification later on.
         Notification notification = mBuilder.build();
         notification.defaults |= Notification.DEFAULT_SOUND;
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         
-        mNotificationManager.notify(noteInfo.hashCode(), notification);
+        mNotificationManager.notify(CURRNET_NOTIFICATION_ID, notification);
+        mCurrentShownNotificationNote = noteInfo;
     }
 
     @Override
