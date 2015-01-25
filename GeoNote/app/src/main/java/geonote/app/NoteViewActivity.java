@@ -1,5 +1,7 @@
 package geonote.app;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -79,9 +81,22 @@ public class NoteViewActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_delete:
+                new AlertDialog.Builder(this)
+                        .setTitle("Delete note")
+                        .setMessage("Are you sure you want to delete this Note?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                returnFromActivity(Constants.RESULT_DELETE_NOTE, noteInfo);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_delete)
+                        .show();
 
-                // TODO: Confirm from user if ok to delete.
-                returnFromActivity(Constants.RESULT_DELETE_NOTE, noteInfo);
                 break;
 
             case R.id.action_save:
