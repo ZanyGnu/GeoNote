@@ -51,6 +51,7 @@ public class MapsActivity
     private static final String PREFS_NOTES = "GeoNote.Preferences.V1";
     private static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
     private static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
+    private static final int GEO_FENCE_RADIUS = 100;
 
     private GoogleMap mGoogleMap;
     private NotesRepository mNotesRepository;
@@ -61,10 +62,16 @@ public class MapsActivity
     private LocationRequest mLocationRequest;
     private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
     private HashMap<LatLng, Marker> mMarkers = new HashMap<>();
+    NotificationManager mNotificationManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        this.mGeocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
         setContentView(R.layout.activity_main);
 
@@ -73,8 +80,6 @@ public class MapsActivity
         buildGoogleApiClient();
 
         createLocationRequest();
-
-        this.mGeocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
         setUpNotesRepository();
 
@@ -342,9 +347,9 @@ public class MapsActivity
                     results
             );
 
-            // if we have a note within about 100 meters from where we are,
+            // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
             // and the note requested for an alert, send a notification.
-            if (results[0] < 100) {
+            if (results[0] < GEO_FENCE_RADIUS) {
                 if (closestMatch > results[0] && noteInfo.getEnableRaisingEvents())
                 {
                     closestMatch = results[0];
@@ -361,6 +366,30 @@ public class MapsActivity
                 mSentNotifications.add(noteInfoToNotifyOn);
             }
         }
+
+        // Go through all posted notifications, and if the user is no longer
+        // close to that location remove the notification
+
+        for(NoteInfo noteInfo: this.mSentNotifications)
+        {
+            Location.distanceBetween(
+                    mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude(),
+                    noteInfo.getLatLng().latitude,
+                    noteInfo.getLatLng().longitude,
+                    results
+            );
+
+            // if we have a note is outside of GEO_FENCE_RADIUS,
+            // cancel the sent notification.
+            if (results[0] >= GEO_FENCE_RADIUS) {
+                cancelNotification(noteInfo);
+            }
+        }
+    }
+
+    protected void cancelNotification(NoteInfo noteInfo) {
+        mNotificationManager.cancel(noteInfo.hashCode());
     }
 
     protected void sendNotification(String notificationContents, NoteInfo noteInfo)
@@ -394,15 +423,13 @@ public class MapsActivity
                 );
 
         mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // mId allows you to update the notification later on.
         Notification notification = mBuilder.build();
         notification.defaults |= Notification.DEFAULT_SOUND;
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         
-        mNotificationManager.notify(0, notification);
+        mNotificationManager.notify(noteInfo.hashCode(), notification);
     }
 
     @Override
