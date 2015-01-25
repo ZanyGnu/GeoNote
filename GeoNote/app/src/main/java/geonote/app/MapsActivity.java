@@ -5,13 +5,16 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -65,6 +68,8 @@ public class MapsActivity
     private HashMap<LatLng, Marker> mMarkers = new HashMap<>();
     NotificationManager mNotificationManager = null;
     private NoteInfo mCurrentShownNotificationNote = null;
+    private GeoFenceWatcherService mBoundService;
+    private boolean mIsBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -358,7 +363,7 @@ public class MapsActivity
 
         // if the posted notification is outside of GEO_FENCE_RADIUS,
         // cancel the sent notification.
-        if (mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
+        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
             mNotificationManager.cancel(CURRNET_NOTIFICATION_ID);
         }
     }
@@ -417,4 +422,61 @@ public class MapsActivity
         // Remove this for store / production builds!
         UpdateManager.register(this, APP_ID);
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            mBoundService = ((GeoFenceWatcherService.LocalBinder)service).getService();
+
+            // Tell the user about this for our demo.
+            //Toast.makeText(Binding.this, R.string.local_service_connected, Toast.LENGTH_SHORT).show();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            mBoundService = null;
+            //Toast.makeText(this, "local_service_disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    @Override
+     protected void onStart()
+    {
+        super.onStart();
+
+        // TODO: uncomment until we can make this work
+        //doBindService();
+    }
+
+    void doBindService() {
+        // Establish a connection with the service.  We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        bindService(new Intent(this,
+                GeoFenceWatcherService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
+
 }
