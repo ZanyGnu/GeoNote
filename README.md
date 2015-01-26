@@ -1,4 +1,4 @@
 GeoNote
 =======
 
-Location based note taking
+Android app for location based note taking

@@ -186,7 +186,7 @@ public class NoteViewActivity extends ActionBarActivity {
 
                     if (placesList!=null) {
                         String[] items = new String[placesList.size() + 1];
-                        items[0] = null;
+                        items[0] = "";
                         int pos = 1;
                         for (Place place : placesList) {
                             items[pos++] = place.name;
