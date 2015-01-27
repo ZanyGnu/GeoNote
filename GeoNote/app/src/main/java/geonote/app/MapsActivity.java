@@ -33,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -190,7 +191,10 @@ public class MapsActivity
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setCompassEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
+
         mGoogleMap.setMyLocationEnabled(true);
+        mGoogleMap.setBuildingsEnabled(true);
+        final int defaultMapType = mGoogleMap.getMapType();
 
         this.addMarkersFromNotes();
 
@@ -206,6 +210,20 @@ public class MapsActivity
                     }
                 }
         );
+
+        mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+            private float currentZoom = 25;
+
+            @Override
+            public void onCameraChange(CameraPosition pos) {
+                if (pos.zoom < 17)  {
+                    mGoogleMap.setMapType(defaultMapType);
+                } else {
+                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                }
+            }
+        });
 
         LayoutInflater layoutInflater = getLayoutInflater();
 
