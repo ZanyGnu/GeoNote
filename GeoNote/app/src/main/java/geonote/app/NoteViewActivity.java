@@ -3,6 +3,8 @@ package geonote.app;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -16,8 +18,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import geonote.app.Model.Place;
 
@@ -25,6 +30,7 @@ public class NoteViewActivity extends ActionBarActivity {
 
     NoteInfo noteInfo;
     GooglePlaces googlePlaces = null;
+    Geocoder mGeocoder = null;
 
     TextView addressDetailsTextView = null;
     TextView addressTextView = null;
@@ -34,6 +40,9 @@ public class NoteViewActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.mGeocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
+
         Intent intent = getIntent();
         this.noteInfo = intent.getParcelableExtra("noteInfoExtra");
 
@@ -47,7 +56,7 @@ public class NoteViewActivity extends ActionBarActivity {
         addressDetailsTextView.setText(noteInfo.getAddressDetails());
 
         addressTextView = (TextView) findViewById(R.id.txtNoteViewAddress);
-        addressTextView.setText(noteInfo.getAddressString().replace('\n', ' '));
+        addressTextView.setText(noteInfo.getAddress());
 
         editText = (EditText) findViewById(R.id.editTextNoteView);
         editText.setText(noteInfo.toString());
@@ -70,7 +79,6 @@ public class NoteViewActivity extends ActionBarActivity {
         int id = item.getItemId();
         Intent returnIntent = null;
 
-        //noinspection SimplifiableIfStatement
         switch(id)
         {
             case R.id.action_settings:
@@ -100,12 +108,17 @@ public class NoteViewActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_save:
+
+                // save notes
                 noteInfo.getNotes().clear();
                 for (String note : editText.getText().toString().split("\n")) {
                     noteInfo.AddNote(note);
                 }
+
+                // save modifications to address
                 noteInfo.AddressDetails(addressDetailsTextView.getText().toString())
-                        .EnableRaisingEvents(checkBoxEnableAlerts.isChecked());
+                        .EnableRaisingEvents(checkBoxEnableAlerts.isChecked())
+                        .Address(addressTextView.getText().toString());
 
                 returnFromActivity(RESULT_OK, noteInfo);
 
@@ -137,7 +150,17 @@ public class NoteViewActivity extends ActionBarActivity {
 
         protected String doInBackground(String... args) {
             try {
-                List<Place> places = googlePlaces.searchForPlaces(noteInfo.getLatLng(), 75).results;
+
+                LatLng latLng = noteInfo.getLatLng();
+                if (noteInfo.getAddress() != null) {
+
+                    Address address = NotesRepository.getAddressFromLocationName(mGeocoder, noteInfo.getAddress());
+                    if (address != null) {
+                        latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    }
+                }
+
+                List<Place> places = googlePlaces.searchForPlaces(latLng , 75).results;
                 for(Place place:places) {
                     this.placesList.add(this.placesList.size(), googlePlaces.getPlaceDetails(place).result);
                 }
@@ -159,14 +182,13 @@ public class NoteViewActivity extends ActionBarActivity {
                     dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            if(parent.getItemAtPosition(position) != null) {
+                            if(parent.getItemAtPosition(position) != "") {
                                 String placeName = parent.getItemAtPosition(position).toString();
                                 addressDetailsTextView.setText(placeName);
 
                                 for(Place place:placesList)
                                 {
                                     // find matching place, and change the address to that location
-
                                     if (place.name == placeName &&
 
                                             (place.formatted_address != null
@@ -192,7 +214,11 @@ public class NoteViewActivity extends ActionBarActivity {
                             items[pos++] = place.name;
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, items);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                                getBaseContext(),
+                                android.R.layout.simple_spinner_item,
+                                items);
+
                         dropdown.setAdapter(adapter);
                     }
                 }

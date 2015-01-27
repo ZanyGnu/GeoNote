@@ -75,6 +75,28 @@ public class NotesRepository {
         return null;
     }
 
+    public static Address getAddressFromLocationName(Geocoder geocoder, String address) {
+
+        if (geocoder == null)
+        {
+            return null;
+        }
+
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocationName(address, 1);
+            if (addresses.size() > 0) {
+                return addresses.get(0);
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public String serializeToJson()
     {
         GsonBuilder builder = new GsonBuilder();

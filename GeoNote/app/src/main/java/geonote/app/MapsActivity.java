@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
@@ -222,9 +223,10 @@ public class MapsActivity
     private void addNewNote(LatLng latLng, Activity currentActivity) {
         NoteInfo note = null;
         if (!mNotesRepository.Notes.containsKey(latLng)) {
+            Address address = NotesRepository.getAddressFromLatLng(mGeocoder, latLng);
             note = new NoteInfo()
                     .LatLng(latLng)
-                    .Address(NotesRepository.getAddressFromLatLng(mGeocoder, latLng));
+                    .Address(address);
             mNotesRepository.Notes.put(latLng, note);
         }
 
