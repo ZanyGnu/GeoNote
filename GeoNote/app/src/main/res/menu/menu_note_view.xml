@@ -8,10 +8,6 @@
         android:icon="@drawable/blue_save"
         android:title="Save"
         app:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_cancel"
-        android:icon="@drawable/blue_cancel"
-        android:title="Cancel"
-        app:showAsAction="ifRoom" />
     <item android:id="@+id/action_delete"
         android:icon="@drawable/blue_delete"
         android:title="Delete"

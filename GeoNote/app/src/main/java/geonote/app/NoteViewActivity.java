@@ -49,11 +49,10 @@ public class NoteViewActivity extends ActionBarActivity {
         setContentView(R.layout.activity_note_view);
 
         this.addressDetailsTextView = (TextView) findViewById(R.id.txtNoteViewPlaceDetails);
+        addressDetailsTextView.setText(noteInfo.getAddressDetails());
 
         // execute a background task to populate the drop down choices for the place.
         new LoadPlaces().execute();
-
-        addressDetailsTextView.setText(noteInfo.getAddressDetails());
 
         addressTextView = (TextView) findViewById(R.id.txtNoteViewAddress);
         addressTextView.setText(noteInfo.getAddress());
@@ -62,6 +61,7 @@ public class NoteViewActivity extends ActionBarActivity {
         editText.setText(noteInfo.toString());
 
         checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
+        checkBoxEnableAlerts.setChecked(noteInfo.getEnableRaisingEvents());
     }
 
     @Override
@@ -77,15 +77,10 @@ public class NoteViewActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        Intent returnIntent = null;
 
         switch(id)
         {
             case R.id.action_settings:
-                break;
-
-            case R.id.action_cancel:
-                returnFromActivity(RESULT_CANCELED, noteInfo);
                 break;
 
             case R.id.action_delete:
