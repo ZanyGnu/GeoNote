@@ -53,27 +53,32 @@ public class MapsActivity
                     GoogleApiClient.OnConnectionFailedListener,
                     LocationListener {
 
-    private static final int NOTE_VIEW_ACTIVITY = 1;
-    private static final String PREFS_NOTES = "GeoNote.Preferences.V1";
-    private static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
-    private static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
-    private static final int GEO_FENCE_RADIUS = 100;
-    private static final int CURRNET_NOTIFICATION_ID=0;
+    protected static final int NOTE_VIEW_ACTIVITY = 1;
+    protected static final String PREFS_NOTES = "GeoNote.Preferences.V1";
+    protected static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
+    protected static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
+    protected static final int GEO_FENCE_RADIUS = 100;
+    protected static final int CURRENT_NOTIFICATION_ID =0;
 
-    private GoogleMap mGoogleMap;
-    private NotesRepository mNotesRepository;
-    private Geocoder mGeocoder;
-    private GoogleApiClient mGoogleApiClient;
-    private FloatingActionButton newNoteButton;
-    private Location mLastLocation = null;
-    private LocationRequest mLocationRequest;
-    private HashSet<NoteInfo> mSentNotifications = new HashSet<>();
-    private HashMap<LatLng, Marker> mMarkers = new HashMap<>();
-    NotificationManager mNotificationManager = null;
-    private NoteInfo mCurrentShownNotificationNote = null;
-    private GeoFenceWatcherService mBoundService;
-    private boolean mIsBound;
-    private boolean mGeoIntentRecieved;
+    protected GoogleMap mGoogleMap;
+    protected NotesRepository mNotesRepository;
+    protected Geocoder mGeocoder;
+    protected GoogleApiClient mGoogleApiClient;
+    protected FloatingActionButton newNoteButton;
+    protected Location mLastLocation = null;
+    protected LocationRequest mLocationRequest;
+    protected HashSet<NoteInfo> mSentNotifications = new HashSet<>();
+    protected HashMap<LatLng, Marker> mMarkers = new HashMap<>();
+    protected NotificationManager mNotificationManager = null;
+    protected NoteInfo mCurrentShownNotificationNote = null;
+    protected GeoFenceWatcherService mBoundService;
+    protected boolean mIsBound;
+    protected boolean mGeoIntentReceived;
+
+    public class IntentHandler extends MapsActivity
+    {
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,12 +106,12 @@ public class MapsActivity
         checkAndHandleLocationIntent();
     }
 
-    private void checkAndHandleLocationIntent() {
+    protected void checkAndHandleLocationIntent() {
         Intent intent = getIntent();
         Uri geoData = intent.getData();
         if (geoData!= null)
         {
-            this.mGeoIntentRecieved = true;
+            this.mGeoIntentReceived = true;
             String placeQueryPrefix = "geo:0,0?q=";
             if (geoData.toString().startsWith(placeQueryPrefix)) {
                 //geo:0,0?q=street+address
@@ -117,7 +122,7 @@ public class MapsActivity
         }
     }
 
-    private void setupNewNoteButton() {
+    protected void setupNewNoteButton() {
         newNoteButton = (FloatingActionButton) findViewById(R.id.fabButton);
         newNoteButton.setSize(FloatingActionButton.SIZE_MINI);
         newNoteButton.setColor(Color.RED);
@@ -150,7 +155,7 @@ public class MapsActivity
         return true;
     }
 
-    private void setUpNotesRepository() {
+    protected void setUpNotesRepository() {
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
         String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
 
@@ -186,7 +191,7 @@ public class MapsActivity
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
      * call {@link #setUpMap()} once when {@link #mGoogleMap} is not null.
      */
-    private void setUpMapIfNeeded() {
+    protected void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mGoogleMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -204,7 +209,7 @@ public class MapsActivity
      * <p/>
      * This should only be called once and when we are sure that {@link #mGoogleMap} is not null.
      */
-    private void setUpMap() {
+    protected void setUpMap() {
         final Activity currentActivity = this;
 
         UiSettings uiSettings = mGoogleMap.getUiSettings();
@@ -258,7 +263,7 @@ public class MapsActivity
         });
     }
 
-    private void addNewNote(LatLng latLng, Activity currentActivity) {
+    protected void addNewNote(LatLng latLng, Activity currentActivity) {
         NoteInfo note = null;
         if (!mNotesRepository.Notes.containsKey(latLng)) {
             Address address = NotesRepository.getAddressFromLatLng(mGeocoder, latLng);
@@ -299,13 +304,13 @@ public class MapsActivity
         }
     }
 
-    private void addMarkersFromNotes() {
+    protected void addMarkersFromNotes() {
         for (NoteInfo note: mNotesRepository.Notes.values()) {
             addNoteMarkerToMap(note);
         }
     }
 
-    private void addNoteMarkerToMap(NoteInfo note) {
+    protected void addNoteMarkerToMap(NoteInfo note) {
         if (mMarkers.containsKey(note.getLatLng()))
         {
             mMarkers.get(note.getLatLng()).remove();
@@ -323,10 +328,14 @@ public class MapsActivity
         mMarkers.put(note.getLatLng(), marker);
     }
 
-    private void removeNoteMarkerFromMap(NoteInfo noteInfo)
+    protected void removeNoteMarkerFromMap(NoteInfo noteInfo)
     {
         Marker marker = mMarkers.get(noteInfo.getLatLng());
-        marker.remove();
+        if (marker != null) {
+            // the marker might not exist if we are trying to delete a note that
+            // has not yet been created and saved
+            marker.remove();
+        }
     }
 
     @Override
@@ -336,12 +345,12 @@ public class MapsActivity
 
         startLocationUpdates();
 
-        if (mGeoIntentRecieved != true && mLastLocation != null) {
+        if (mGeoIntentReceived != true && mLastLocation != null) {
             moveMapCameraToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         }
     }
 
-    private void moveMapCameraToLocation(LatLng latLng) {
+    protected void moveMapCameraToLocation(LatLng latLng) {
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
@@ -406,7 +415,7 @@ public class MapsActivity
         // if the posted notification is outside of GEO_FENCE_RADIUS,
         // cancel the sent notification.
         if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
-            mNotificationManager.cancel(CURRNET_NOTIFICATION_ID);
+            mNotificationManager.cancel(CURRENT_NOTIFICATION_ID);
         }
     }
 
@@ -446,7 +455,7 @@ public class MapsActivity
         notification.defaults |= Notification.DEFAULT_SOUND;
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         
-        mNotificationManager.notify(CURRNET_NOTIFICATION_ID, notification);
+        mNotificationManager.notify(CURRENT_NOTIFICATION_ID, notification);
         mCurrentShownNotificationNote = noteInfo;
     }
 
@@ -456,16 +465,16 @@ public class MapsActivity
         UpdateManager.unregister();
     }
 
-    private void checkForCrashes() {
+    protected void checkForCrashes() {
         CrashManager.register(this, APP_ID);
     }
 
-    private void checkForUpdates() {
+    protected void checkForUpdates() {
         // Remove this for store / production builds!
         UpdateManager.register(this, APP_ID);
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    protected ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             // This is called when the connection with the service has been
             // established, giving us the service object we can use to
