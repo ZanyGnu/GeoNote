@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -72,10 +73,13 @@ public class MapsActivity
     private NoteInfo mCurrentShownNotificationNote = null;
     private GeoFenceWatcherService mBoundService;
     private boolean mIsBound;
+    private boolean mGeoIntentRecieved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkForUpdates();
 
         this.mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -94,7 +98,23 @@ public class MapsActivity
 
         setUpMapIfNeeded();
 
-        checkForUpdates();
+        checkAndHandleLocationIntent();
+    }
+
+    private void checkAndHandleLocationIntent() {
+        Intent intent = getIntent();
+        Uri geoData = intent.getData();
+        if (geoData!= null)
+        {
+            this.mGeoIntentRecieved = true;
+            String placeQueryPrefix = "geo:0,0?q=";
+            if (geoData.toString().startsWith(placeQueryPrefix)) {
+                //geo:0,0?q=street+address
+                String locationName = geoData.toString().substring(placeQueryPrefix.length());
+                Address address = NotesRepository.getAddressFromLocationName(this.mGeocoder, locationName);
+                    moveMapCameraToLocation(new LatLng(address.getLatitude(), address.getLongitude()));
+            }
+        }
     }
 
     private void setupNewNoteButton() {
@@ -316,12 +336,14 @@ public class MapsActivity
 
         startLocationUpdates();
 
-        if (mLastLocation != null) {
-            // Showing the current location in Google Map
-
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
-            mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
+        if (mGeoIntentRecieved != true && mLastLocation != null) {
+            moveMapCameraToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         }
+    }
+
+    private void moveMapCameraToLocation(LatLng latLng) {
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
 
     protected void createLocationRequest() {
