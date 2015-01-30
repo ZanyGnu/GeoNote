@@ -114,10 +114,9 @@ public class NoteViewActivity extends ActionBarActivity {
     public void onBackPressed() {
 
         NoteInfo newNoteInfo = createNoteInfoFromUserData();
-        if (!newNoteInfo.equals(this.noteInfo)) {
+        if (newNoteInfo.equals(this.noteInfo)) {
             NoteViewActivity.super.onBackPressed();
-        }
-        else {
+        } else {
             new AlertDialog.Builder(this)
                 .setTitle("Unsaved changes")
                 .setMessage("There are unsaved changes. Do you want to save changes?")
