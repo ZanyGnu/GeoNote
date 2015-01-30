@@ -179,6 +179,66 @@ public class NoteInfo implements Parcelable {
         return this.getLatLng().hashCode();
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return true;
+        }
+
+        if (!(o instanceof NoteInfo)) {
+            return false;
+        }
+
+        NoteInfo other = (NoteInfo)o;
+        if (this.LatLng != other.LatLng
+            || !this.AddressText.equals(other.AddressText)
+            || !this.AddressDetails.equals(other.AddressDetails)
+            || this.EnableRaisingEvents != other.EnableRaisingEvents) {
+            return  false;
+        }
+
+        if (!checkIfEqual(this.Notes, other.Notes))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean checkIfEqual(ArrayList<String> thisNotes, ArrayList<String> otherNotes)
+    {
+        if (thisNotes == otherNotes) {
+            return true;
+        }
+
+        if (thisNotes == null && otherNotes != null) {
+            return false;
+        }
+
+        if (thisNotes != null) {
+            if (otherNotes == null){
+                return false;
+            }
+
+            if (otherNotes.size() != thisNotes.size()){
+                return false;
+            }
+
+            for(int i = 0;i<thisNotes.size();i++){
+                if (!thisNotes.get(i).equals(otherNotes.get(i))){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     public float getDistanceFrom(Location location)
     {
         float results[] = new float[1];

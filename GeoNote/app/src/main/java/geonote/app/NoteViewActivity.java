@@ -103,24 +103,58 @@ public class NoteViewActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_save:
-
-                // save notes
-                noteInfo.getNotes().clear();
-                for (String note : editText.getText().toString().split("\n")) {
-                    noteInfo.AddNote(note);
-                }
-
-                // save modifications to address
-                noteInfo.AddressDetails(addressDetailsTextView.getText().toString())
-                        .EnableRaisingEvents(checkBoxEnableAlerts.isChecked())
-                        .Address(addressTextView.getText().toString());
-
-                returnFromActivity(RESULT_OK, noteInfo);
-
+                returnFromActivity(RESULT_OK, createNoteInfoFromUserData());
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        NoteInfo newNoteInfo = createNoteInfoFromUserData();
+        if (!newNoteInfo.equals(this.noteInfo)) {
+            NoteViewActivity.super.onBackPressed();
+        }
+        else {
+            new AlertDialog.Builder(this)
+                .setTitle("Unsaved changes")
+                .setMessage("There are unsaved changes. Do you want to save changes?")
+                .setIcon(android.R.drawable.ic_menu_close_clear_cancel)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        returnFromActivity(RESULT_OK, createNoteInfoFromUserData());
+                    }
+                })
+                .setNegativeButton("Don't save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing to stay back in the same view
+                    }
+                })
+                .create()
+                .show();
+        }
+    }
+
+    private NoteInfo createNoteInfoFromUserData() {
+        final NoteInfo newNoteInfo = new NoteInfo();
+
+        for (String note : editText.getText().toString().split("\n")) {
+            newNoteInfo.AddNote(note);
+        }
+
+        // save modifications to address
+        newNoteInfo.AddressDetails(addressDetailsTextView.getText().toString())
+                .EnableRaisingEvents(checkBoxEnableAlerts.isChecked())
+                .Address(addressTextView.getText().toString())
+                .LatLng(noteInfo.getLatLng());
+        return newNoteInfo;
     }
 
     private void returnFromActivity(int resultCode, NoteInfo resultObject) {
@@ -131,7 +165,6 @@ public class NoteViewActivity extends ActionBarActivity {
 
         finish();
     }
-
 
     class LoadPlaces extends AsyncTask<String, String, String> {
 
