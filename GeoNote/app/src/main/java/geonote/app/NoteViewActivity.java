@@ -37,6 +37,8 @@ public class NoteViewActivity extends ActionBarActivity {
     EditText editText = null;
     CheckBox checkBoxEnableAlerts = null;
 
+    // region Overrides for ActionBarActivity
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +142,8 @@ public class NoteViewActivity extends ActionBarActivity {
                 .show();
         }
     }
+
+    // endregion
 
     private NoteInfo createNoteInfoFromUserData() {
         final NoteInfo newNoteInfo = new NoteInfo();

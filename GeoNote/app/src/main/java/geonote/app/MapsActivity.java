@@ -75,10 +75,7 @@ public class MapsActivity
     protected boolean mIsBound;
     protected boolean mGeoIntentReceived;
 
-    public class IntentHandler extends MapsActivity
-    {
-
-    }
+    //region Overrides for ActionBarActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +102,132 @@ public class MapsActivity
 
         checkAndHandleLocationIntent();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        // We need an Editor object to make preference changes.
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
+
+        String notesJson = this.mNotesRepository.serializeToJson();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
+
+        // Commit the edits!
+        editor.commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+        checkForCrashes();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UpdateManager.unregister();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // TODO: uncomment until we can make this work
+        //doBindService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
+
+    // endregion
+
+    // region Overrides for GoogleApiClient.ConnectionCallbacks
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+
+        startLocationUpdates();
+
+        if (mGeoIntentReceived != true && mLastLocation != null) {
+            moveMapCameraToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    // endregion
+
+    // region Overrides for GoogleApiClient.OnConnectionFailedListener
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Toast.makeText(getBaseContext(),
+                "Connection failed",
+                Toast.LENGTH_LONG).show();
+    }
+
+    // endregion
+
+    // region Overrides for LocationListener
+
+    @Override
+    public void onLocationChanged(Location location) {
+        this.mLastLocation = location;
+
+        // check if there is a note in the nearby location.
+        float closestMatch = Integer.MAX_VALUE;
+        NoteInfo noteInfoToNotifyOn = null;
+
+        for(NoteInfo noteInfo: this.mNotesRepository.Notes.values())
+        {
+            // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
+            // and the note requested for an alert, send a notification.
+            float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
+            if (distanceFromNote < GEO_FENCE_RADIUS) {
+                if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
+                {
+                    closestMatch = distanceFromNote;
+                    noteInfoToNotifyOn = noteInfo;
+                }
+            }
+        }
+
+        if (noteInfoToNotifyOn != null) {
+            // send the notification from the closest note only if we havent already sent it.
+            // TODO - do we need to remember this for a time period too?
+            if (!mSentNotifications.contains(noteInfoToNotifyOn)) {
+                sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
+                mSentNotifications.add(noteInfoToNotifyOn);
+            }
+        }
+
+        // if the posted notification is outside of GEO_FENCE_RADIUS,
+        // cancel the sent notification.
+        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
+            mNotificationManager.cancel(CURRENT_NOTIFICATION_ID);
+        }
+    }
+
+    // endregion
 
     protected void checkAndHandleLocationIntent() {
         Intent intent = getIntent();
@@ -148,42 +271,12 @@ public class MapsActivity
         mGoogleApiClient.connect();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
     protected void setUpNotesRepository() {
         SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
         String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
 
         mNotesRepository = new NotesRepository(this.mGeocoder);
         mNotesRepository.deserializeFromJson(settingJson);
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-
-        // We need an Editor object to make preference changes.
-        // All objects are from android.context.Context
-        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
-
-        String notesJson = this.mNotesRepository.serializeToJson();
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
-
-        // Commit the edits!
-        editor.commit();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-        checkForCrashes();
     }
 
     /**
@@ -204,11 +297,6 @@ public class MapsActivity
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mGoogleMap} is not null.
-     */
     protected void setUpMap() {
         final Activity currentActivity = this;
 
@@ -328,25 +416,12 @@ public class MapsActivity
         mMarkers.put(note.getLatLng(), marker);
     }
 
-    protected void removeNoteMarkerFromMap(NoteInfo noteInfo)
-    {
+    protected void removeNoteMarkerFromMap(NoteInfo noteInfo) {
         Marker marker = mMarkers.get(noteInfo.getLatLng());
         if (marker != null) {
             // the marker might not exist if we are trying to delete a note that
             // has not yet been created and saved
             marker.remove();
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-
-        startLocationUpdates();
-
-        if (mGeoIntentReceived != true && mLastLocation != null) {
-            moveMapCameraToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         }
     }
 
@@ -369,58 +444,7 @@ public class MapsActivity
                 this);
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(getBaseContext(),
-                "Connection failed",
-                Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        this.mLastLocation = location;
-
-        // check if there is a note in the nearby location.
-        float closestMatch = Integer.MAX_VALUE;
-        NoteInfo noteInfoToNotifyOn = null;
-
-        for(NoteInfo noteInfo: this.mNotesRepository.Notes.values())
-        {
-            // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
-            // and the note requested for an alert, send a notification.
-            float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
-            if (distanceFromNote < GEO_FENCE_RADIUS) {
-                if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
-                {
-                    closestMatch = distanceFromNote;
-                    noteInfoToNotifyOn = noteInfo;
-                }
-            }
-        }
-
-        if (noteInfoToNotifyOn != null) {
-            // send the notification from the closest note only if we havent already sent it.
-            // TODO - do we need to remember this for a time period too?
-            if (!mSentNotifications.contains(noteInfoToNotifyOn)) {
-                sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
-                mSentNotifications.add(noteInfoToNotifyOn);
-            }
-        }
-
-        // if the posted notification is outside of GEO_FENCE_RADIUS,
-        // cancel the sent notification.
-        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
-            mNotificationManager.cancel(CURRENT_NOTIFICATION_ID);
-        }
-    }
-
-    protected void sendNotification(String notificationContents, NoteInfo noteInfo)
-    {
+    protected void sendNotification(String notificationContents, NoteInfo noteInfo) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notespin)
@@ -459,12 +483,6 @@ public class MapsActivity
         mCurrentShownNotificationNote = noteInfo;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        UpdateManager.unregister();
-    }
-
     protected void checkForCrashes() {
         CrashManager.register(this, APP_ID);
     }
@@ -497,15 +515,6 @@ public class MapsActivity
         }
     };
 
-    @Override
-     protected void onStart()
-    {
-        super.onStart();
-
-        // TODO: uncomment until we can make this work
-        //doBindService();
-    }
-
     void doBindService() {
         // Establish a connection with the service.  We use an explicit
         // class name because we want a specific service implementation that
@@ -522,12 +531,6 @@ public class MapsActivity
             unbindService(mConnection);
             mIsBound = false;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        doUnbindService();
     }
 
 }
