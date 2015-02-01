@@ -21,6 +21,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -53,7 +54,9 @@ public class MapsActivity
                     GoogleApiClient.OnConnectionFailedListener,
                     LocationListener {
 
-    protected static final int NOTE_VIEW_ACTIVITY = 1;
+    protected static final int ACTIVITY_NOTE_VIEW = 1;
+    protected static final int ACTIVITY_LOGIN = 2;
+
     protected static final String PREFS_NOTES = "GeoNote.Preferences.V1";
     protected static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
     protected static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
@@ -108,6 +111,27 @@ public class MapsActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch(id)
+        {
+            case R.id.action_settings:
+                break;
+
+            case R.id.action_signin:
+
+                Intent myIntent = new Intent(this, LoginActivity.class);
+                //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+                this.startActivityForResult(myIntent, ACTIVITY_LOGIN);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -319,7 +343,7 @@ public class MapsActivity
 
                         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                         myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
-                        currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
+                        currentActivity.startActivityForResult(myIntent, ACTIVITY_NOTE_VIEW);
                     }
                 }
         );
@@ -365,12 +389,12 @@ public class MapsActivity
 
         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
         myIntent.putExtra("noteInfoExtra", note); //Optional parameters
-        currentActivity.startActivityForResult(myIntent, NOTE_VIEW_ACTIVITY);
+        currentActivity.startActivityForResult(myIntent, ACTIVITY_NOTE_VIEW);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // If the request went well (OK) and the request was NOTE_VIEW_ACTIVITY
-        if (requestCode == NOTE_VIEW_ACTIVITY) {
+        // If the request went well (OK) and the request was ACTIVITY_NOTE_VIEW
+        if (requestCode == ACTIVITY_NOTE_VIEW) {
             NoteInfo noteInfo = null;
 
             switch (resultCode) {
