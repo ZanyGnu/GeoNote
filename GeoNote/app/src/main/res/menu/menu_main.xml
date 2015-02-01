@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context="geonote.app.MainActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+
     <item android:id="@+id/action_signin"
         android:icon="@drawable/common_signin_btn_icon_dark"
         android:title="Signin"
         app:showAsAction="ifRoom" />
+
 </menu>

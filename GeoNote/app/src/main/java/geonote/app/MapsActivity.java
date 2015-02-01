@@ -125,10 +125,14 @@ public class MapsActivity
 
             case R.id.action_signin:
 
+            /*
+                // Disable until we can get this working
                 Intent myIntent = new Intent(this, LoginActivity.class);
                 //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
                 this.startActivityForResult(myIntent, ACTIVITY_LOGIN);
+            */
                 break;
+
         }
 
         return super.onOptionsItemSelected(item);
