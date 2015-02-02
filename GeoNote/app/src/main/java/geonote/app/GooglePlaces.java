@@ -40,7 +40,6 @@ public class GooglePlaces {
     public PlacesList searchForPlaces(LatLng location, double radius) throws Exception {
         try {
             System.out.println("Perform Search ....");
-            System.out.println("-------------------");
             HttpRequestFactory httpRequestFactory = createRequestFactory(transport);
             HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(PLACES_SEARCH_URL));
 
@@ -72,7 +71,6 @@ public class GooglePlaces {
     public PlaceDetails getPlaceDetails(Place place) throws Exception {
         try {
             System.out.println("Perform Place Detail....");
-            System.out.println("-------------------");
             HttpRequestFactory httpRequestFactory = createRequestFactory(transport);
             HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(PLACES_DETAILS_URL));
 
