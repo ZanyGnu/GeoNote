@@ -12,5 +12,8 @@ public class Constants {
     public static final int RESULT_FIRST_USER = 1;
 
     /** activity result: operation request to delete. */
-    public static final int RESULT_DELETE_NOTE = 2;
+    public static final int RESULT_SAVE_NOTE = 2;
+
+    /** activity result: operation request to delete. */
+    public static final int RESULT_DELETE_NOTE = 3;
 }

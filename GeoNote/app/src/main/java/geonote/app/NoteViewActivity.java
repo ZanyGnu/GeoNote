@@ -109,7 +109,7 @@ public class NoteViewActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_save:
-                returnFromActivity(RESULT_OK, createNoteInfoFromUserData());
+                returnFromActivity(Constants.RESULT_SAVE_NOTE, createNoteInfoFromUserData());
                 break;
         }
 
@@ -129,7 +129,7 @@ public class NoteViewActivity extends ActionBarActivity {
                 .setIcon(android.R.drawable.ic_menu_close_clear_cancel)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        returnFromActivity(RESULT_OK, createNoteInfoFromUserData());
+                        returnFromActivity(Constants.RESULT_SAVE_NOTE, createNoteInfoFromUserData());
                     }
                 })
                 .setNegativeButton("Don't save", new DialogInterface.OnClickListener() {

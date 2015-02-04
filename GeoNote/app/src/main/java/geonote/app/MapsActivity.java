@@ -402,7 +402,7 @@ public class MapsActivity
             NoteInfo noteInfo = null;
 
             switch (resultCode) {
-                case Activity.RESULT_OK:
+                case Constants.RESULT_SAVE_NOTE:
                     noteInfo = data.getParcelableExtra("result");
 
                     // replace existing note with new note.

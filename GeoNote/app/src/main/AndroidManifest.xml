@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="geonote.app"
-    android:versionCode="82"
-    android:versionName="0.0.70" >
+    android:versionCode="84"
+    android:versionName="0.0.72" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -46,7 +46,6 @@
             android:logo="@drawable/location_notes" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -73,9 +72,6 @@
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="geonote.app.MapsActivity" />
         </activity>
         <activity android:name="net.hockeyapp.android.UpdateActivity" />
 
