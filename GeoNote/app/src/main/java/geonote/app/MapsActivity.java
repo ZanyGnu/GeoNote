@@ -54,15 +54,6 @@ public class MapsActivity
                     GoogleApiClient.OnConnectionFailedListener,
                     LocationListener {
 
-    protected static final int ACTIVITY_NOTE_VIEW = 1;
-    protected static final int ACTIVITY_LOGIN = 2;
-
-    protected static final String PREFS_NOTES = "GeoNote.Preferences.V1";
-    protected static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
-    protected static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
-    protected static final int GEO_FENCE_RADIUS = 100;
-    protected static final int CURRENT_NOTIFICATION_ID =0;
-
     protected GoogleMap mGoogleMap;
     protected NotesRepository mNotesRepository;
     protected Geocoder mGeocoder;
@@ -132,7 +123,11 @@ public class MapsActivity
                 this.startActivityForResult(myIntent, ACTIVITY_LOGIN);
             */
                 break;
-
+            case R.id.action_listview:
+                Intent myIntent = new Intent(this, MainActivity.class);
+                //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+                this.startActivityForResult(myIntent, Constants.ACTIVITY_NOTES_LIST);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -144,11 +139,11 @@ public class MapsActivity
 
         // We need an Editor object to make preference changes.
         // All objects are from android.context.Context
-        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
+        SharedPreferences settings = getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         String notesJson = this.mNotesRepository.serializeToJson();
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PREFS_NOTES_VALUES_JSON, notesJson);
+        editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
 
         // Commit the edits!
         editor.commit();
@@ -230,7 +225,7 @@ public class MapsActivity
             // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
             // and the note requested for an alert, send a notification.
             float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
-            if (distanceFromNote < GEO_FENCE_RADIUS) {
+            if (distanceFromNote < Constants.GEO_FENCE_RADIUS) {
                 if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
                 {
                     closestMatch = distanceFromNote;
@@ -250,8 +245,8 @@ public class MapsActivity
 
         // if the posted notification is outside of GEO_FENCE_RADIUS,
         // cancel the sent notification.
-        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= GEO_FENCE_RADIUS) {
-            mNotificationManager.cancel(CURRENT_NOTIFICATION_ID);
+        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= Constants.GEO_FENCE_RADIUS) {
+            mNotificationManager.cancel(Constants.CURRENT_NOTIFICATION_ID);
         }
     }
 
@@ -300,8 +295,8 @@ public class MapsActivity
     }
 
     protected void setUpNotesRepository() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NOTES, 0);
-        String settingJson = settings.getString(PREFS_NOTES_VALUES_JSON, "");
+        SharedPreferences settings = getSharedPreferences(Constants.PREFS_NOTES, 0);
+        String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
 
         mNotesRepository = new NotesRepository(this.mGeocoder);
         mNotesRepository.deserializeFromJson(settingJson);
@@ -347,7 +342,7 @@ public class MapsActivity
 
                         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                         myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
-                        currentActivity.startActivityForResult(myIntent, ACTIVITY_NOTE_VIEW);
+                        currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
                     }
                 }
         );
@@ -393,12 +388,12 @@ public class MapsActivity
 
         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
         myIntent.putExtra("noteInfoExtra", note); //Optional parameters
-        currentActivity.startActivityForResult(myIntent, ACTIVITY_NOTE_VIEW);
+        currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If the request went well (OK) and the request was ACTIVITY_NOTE_VIEW
-        if (requestCode == ACTIVITY_NOTE_VIEW) {
+        if (requestCode == Constants.ACTIVITY_NOTE_VIEW) {
             NoteInfo noteInfo = null;
 
             switch (resultCode) {
@@ -507,17 +502,17 @@ public class MapsActivity
         notification.defaults |= Notification.DEFAULT_SOUND;
         notification.defaults |= Notification.DEFAULT_VIBRATE;
         
-        mNotificationManager.notify(CURRENT_NOTIFICATION_ID, notification);
+        mNotificationManager.notify(Constants.CURRENT_NOTIFICATION_ID, notification);
         mCurrentShownNotificationNote = noteInfo;
     }
 
     protected void checkForCrashes() {
-        CrashManager.register(this, APP_ID);
+        CrashManager.register(this, Constants.APP_ID);
     }
 
     protected void checkForUpdates() {
         // Remove this for store / production builds!
-        UpdateManager.register(this, APP_ID);
+        UpdateManager.register(this, Constants.APP_ID);
     }
 
     protected ServiceConnection mConnection = new ServiceConnection() {

@@ -126,4 +126,10 @@ public class NotesRepository {
             this.populateDefaultValues();
         }
     }
+
+    public NoteInfo[] getNotes()
+    {
+        NoteInfo[] values = new NoteInfo[this.Notes.size()];
+        return this.Notes.values().toArray(values);
+    }
 }
