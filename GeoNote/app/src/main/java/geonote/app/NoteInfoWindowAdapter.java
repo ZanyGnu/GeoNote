@@ -15,7 +15,7 @@ public class NoteInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     private LayoutInflater layoutInflater;
     private NotesRepository notesRepository;
 
-    NoteInfoWindowAdapter(LayoutInflater layoutInflater, NotesRepository notesRepository)
+    public NoteInfoWindowAdapter(LayoutInflater layoutInflater, NotesRepository notesRepository)
     {
         this.layoutInflater = layoutInflater;
         this.notesRepository = notesRepository;

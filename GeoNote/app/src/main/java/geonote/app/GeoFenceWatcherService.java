@@ -6,11 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,8 +19,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
+
+import geonote.app.Activity.NoteViewActivity;
 
 public class GeoFenceWatcherService extends Service
         implements  GoogleApiClient.ConnectionCallbacks,
@@ -45,7 +42,7 @@ public class GeoFenceWatcherService extends Service
      * IPC.
      */
     public class LocalBinder extends Binder {
-        GeoFenceWatcherService getService() {
+        public GeoFenceWatcherService getService() {
             return GeoFenceWatcherService.this;
         }
     }

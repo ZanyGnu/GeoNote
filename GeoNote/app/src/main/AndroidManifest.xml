@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="geonote.app"
-    android:versionCode="94"
-    android:versionName="0.0.82" >
+    android:versionCode="105"
+    android:versionName="0.0.93" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -40,31 +40,28 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".Activity.MapsActivity"
             android:icon="@drawable/location_notes"
             android:label="@string/title_activity_maps"
             android:logo="@drawable/location_notes" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".MapsActivityIntentHandler"
+            android:name=".Activity.MapsActivityIntentHandler"
             android:icon="@drawable/location_notes"
             android:label="Add note"
             android:logo="@drawable/location_notes" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <data android:scheme="geo" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".NoteViewActivity"
+            android:name=".Activity.NoteViewActivity"
             android:icon="@drawable/location_notes"
             android:label="@string/title_activity_note_view"
             android:logo="@drawable/location_notes"
@@ -79,12 +76,12 @@
         <service android:name=".GeoFenceWatcherService" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".Activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateHidden" >
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
     </application>

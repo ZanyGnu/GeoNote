@@ -1,7 +1,8 @@
-package geonote.app;
+package geonote.app.Activity;
 
 import java.util.Locale;
 
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,10 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import geonote.app.NoteFragment;
+import geonote.app.Fragments.MapViewFragment;
+import geonote.app.Fragments.NoteFragment;
 import geonote.app.R;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NoteFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NoteFragment.OnFragmentInteractionListener, MapViewFragment.OnFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -40,7 +42,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main);
 
         // Set up the action bar.
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -120,6 +122,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Toast.makeText(this.getBaseContext(), "Got item id " + id, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Toast.makeText(this.getBaseContext(), "Got URI " + uri, Toast.LENGTH_SHORT).show();
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -139,6 +146,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case 0:
                     return NoteFragment.newInstance("foo", "bar");
                 case 1:
+                    return MapViewFragment.newInstance("foo", "bar");
+                case 2:
                     return PlaceholderFragment.newInstance(position + 1);
             }
 
@@ -148,7 +157,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         @Override
         public int getCount() {
             // Show 2 total pages.
-            return 2;
+            return 3;
         }
 
         @Override

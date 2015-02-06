@@ -1,4 +1,4 @@
-package geonote.app;
+package geonote.app.Activity;
 
 public class MapsActivityIntentHandler extends MapsActivity {
 

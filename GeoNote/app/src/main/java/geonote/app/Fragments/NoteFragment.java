@@ -1,4 +1,4 @@
-package geonote.app;
+package geonote.app.Fragments;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -12,6 +12,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import geonote.app.Constants;
+import geonote.app.NoteInfo;
+import geonote.app.NotesRepository;
+import geonote.app.R;
 
 /**
  * A fragment representing a list of Items.
@@ -74,7 +79,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         }
 
         setUpNotesRepository();
-        
+
         mAdapter = new ArrayAdapter<NoteInfo>(getActivity(),
                 android.R.layout.simple_list_item_1,
                 android.R.id.text1,

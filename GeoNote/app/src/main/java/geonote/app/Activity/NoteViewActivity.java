@@ -1,4 +1,4 @@
-package geonote.app;
+package geonote.app.Activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -25,7 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import geonote.app.Constants;
+import geonote.app.GooglePlaces;
 import geonote.app.Model.Place;
+import geonote.app.NoteInfo;
+import geonote.app.NotesRepository;
+import geonote.app.R;
 
 public class NoteViewActivity extends ActionBarActivity {
 

@@ -1,4 +1,4 @@
-package geonote.app;
+package geonote.app.Activity;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -48,6 +48,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
+import geonote.app.Activity.MainActivity;
+import geonote.app.Activity.NoteViewActivity;
+import geonote.app.Constants;
+import geonote.app.GeoFenceWatcherService;
+import geonote.app.NoteInfo;
+import geonote.app.NoteInfoWindowAdapter;
+import geonote.app.NotesRepository;
+import geonote.app.R;
+
 public class MapsActivity
         extends     ActionBarActivity
         implements  GoogleApiClient.ConnectionCallbacks,
@@ -82,7 +91,7 @@ public class MapsActivity
 
         this.mGeocoder = new Geocoder(this.getBaseContext(), Locale.getDefault());
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_mapview);
 
         setupNewNoteButton();
 
