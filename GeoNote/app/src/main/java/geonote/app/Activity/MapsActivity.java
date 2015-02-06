@@ -123,15 +123,18 @@ public class MapsActivity
             case R.id.action_settings:
                 break;
 
-            case R.id.action_signin:
 
             /*
-                // Disable until we can get this working
+            // Disable until we can get this working
+
+            case R.id.action_signin:
+
                 Intent myIntent = new Intent(this, LoginActivity.class);
                 //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
                 this.startActivityForResult(myIntent, ACTIVITY_LOGIN);
-            */
                 break;
+            */
+
             case R.id.action_listview:
                 Intent myIntent = new Intent(this, MainActivity.class);
                 //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
@@ -363,9 +366,11 @@ public class MapsActivity
             @Override
             public void onCameraChange(CameraPosition pos) {
                 if (pos.zoom < 17)  {
-                    mGoogleMap.setMapType(defaultMapType);
+                    if (mGoogleMap.getMapType()!= defaultMapType)
+                        mGoogleMap.setMapType(defaultMapType);
                 } else {
-                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    if (mGoogleMap.getMapType()!= GoogleMap.MAP_TYPE_HYBRID)
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 }
             }
         });

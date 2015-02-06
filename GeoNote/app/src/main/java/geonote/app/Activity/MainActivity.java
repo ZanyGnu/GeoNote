@@ -22,7 +22,11 @@ import geonote.app.Fragments.MapViewFragment;
 import geonote.app.Fragments.NoteFragment;
 import geonote.app.R;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, NoteFragment.OnFragmentInteractionListener, MapViewFragment.OnFragmentInteractionListener {
+public class MainActivity
+        extends     ActionBarActivity
+        implements  ActionBar.TabListener,
+                    NoteFragment.OnFragmentInteractionListener,
+                    MapViewFragment.OnFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -146,7 +150,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 case 0:
                     return NoteFragment.newInstance("foo", "bar");
                 case 1:
-                    return MapViewFragment.newInstance("foo", "bar");
+                    return MapViewFragment.newInstance();
                 case 2:
                     return PlaceholderFragment.newInstance(position + 1);
             }
