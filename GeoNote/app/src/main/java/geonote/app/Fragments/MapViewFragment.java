@@ -162,6 +162,25 @@ public class MapViewFragment
         setUpMapIfNeeded();
     }
 
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+
+        commitNotes();
+    }
+
+    private void commitNotes() {
+        SharedPreferences settings = this.getActivity().getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        String notesJson = this.mNotesRepository.serializeToJson();
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
+
+        // Commit the edits!
+        editor.commit();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -415,7 +434,7 @@ public class MapViewFragment
 
                         Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
                         myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
-                        currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
+                        startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
                     }
                 }
         );
@@ -449,6 +468,32 @@ public class MapViewFragment
         });
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // If the request went well (OK) and the request was ACTIVITY_NOTE_VIEW
+        if (requestCode == Constants.ACTIVITY_NOTE_VIEW) {
+            NoteInfo noteInfo = null;
+
+            switch (resultCode) {
+                case Constants.RESULT_SAVE_NOTE:
+                    noteInfo = data.getParcelableExtra("result");
+
+                    // replace existing note with new note.
+                    this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
+
+                    // add the note to the map
+                    addNoteMarkerToMap(noteInfo);
+                    break;
+
+                case Constants.RESULT_DELETE_NOTE:
+                    noteInfo = data.getParcelableExtra("result");
+                    this.mNotesRepository.Notes.remove(noteInfo.getLatLng());
+                    removeNoteMarkerFromMap(noteInfo);
+            }
+
+            // lets remember the changes
+            commitNotes();
+        }
+    }
 
     protected void addMarkersFromNotes() {
         for (NoteInfo note: mNotesRepository.Notes.values()) {
@@ -472,6 +517,15 @@ public class MapViewFragment
         marker.setVisible(true);
         marker.showInfoWindow();
         mMarkers.put(note.getLatLng(), marker);
+    }
+
+    protected void removeNoteMarkerFromMap(NoteInfo noteInfo) {
+        Marker marker = mMarkers.get(noteInfo.getLatLng());
+        if (marker != null) {
+            // the marker might not exist if we are trying to delete a note that
+            // has not yet been created and saved
+            marker.remove();
+        }
     }
 
     protected void checkAndHandleLocationIntent() {

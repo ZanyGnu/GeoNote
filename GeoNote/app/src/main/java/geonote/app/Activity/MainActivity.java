@@ -2,6 +2,7 @@ package geonote.app.Activity;
 
 import java.util.Locale;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -131,6 +132,12 @@ public class MainActivity
         Toast.makeText(this.getBaseContext(), "Got URI " + uri, Toast.LENGTH_SHORT).show();
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // even though the fragment may be the one making the startActivityForResult call,
+        // the activity gets the first shot at handling the result.
+        // returning from here lets the fragment handle the result.
+        super.onActivityResult(requestCode, resultCode, data);
+    }
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.

@@ -194,7 +194,6 @@ public class NoteListFragment
             TextView txtAddress = (TextView) rowView.findViewById(R.id.txt_list_view_address);
             TextView txtNotes = (TextView) rowView.findViewById(R.id.txt_list_view_notes);
 
-
             txtPlaceDetails.setText(noteInfo.getAddressDetails());
             txtAddress.setText(noteInfo.getAddress());
             txtNotes.setText(noteInfo.toString());
