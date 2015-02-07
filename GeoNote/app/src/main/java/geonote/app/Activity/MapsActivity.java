@@ -361,8 +361,6 @@ public class MapsActivity
 
         mGoogleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
-            private float currentZoom = 25;
-
             @Override
             public void onCameraChange(CameraPosition pos) {
                 if (pos.zoom < 17)  {

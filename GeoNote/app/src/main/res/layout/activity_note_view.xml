@@ -11,29 +11,29 @@
         tools:context="geonote.app.Activity.NoteViewActivity"
         android:weightSum="1">
 
-<FrameLayout
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <EditText android:layout_height="fill_parent"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:maxLines="2"
-        android:textSize="24dp"
-        android:hint="Place"
-        android:textStyle="bold"
-        android:textColor="@color/background_material_dark"
-        android:id="@+id/txtNoteViewPlaceDetails" />
-    <Spinner
-        android:id="@+id/spinnerPlaceDetails"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        android:layout_width="48dp"
-        android:layout_height="26dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="12dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"/>
+        android:layout_height="fill_parent">
+        <EditText android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:maxLines="2"
+            android:textSize="24dp"
+            android:hint="Place"
+            android:textStyle="bold"
+            android:textColor="@color/background_material_dark"
+            android:id="@+id/txtNoteViewPlaceDetails" />
+        <Spinner
+            android:id="@+id/spinnerPlaceDetails"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"
+            android:layout_width="48dp"
+            android:layout_height="26dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"/>
 
-    </FrameLayout>
+        </FrameLayout>
         <EditText android:text="Address"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

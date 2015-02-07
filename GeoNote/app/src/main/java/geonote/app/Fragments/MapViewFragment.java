@@ -427,9 +427,11 @@ public class MapViewFragment
             @Override
             public void onCameraChange(CameraPosition pos) {
                 if (pos.zoom < 17)  {
-                    mGoogleMap.setMapType(defaultMapType);
+                    if (mGoogleMap.getMapType()!= defaultMapType)
+                        mGoogleMap.setMapType(defaultMapType);
                 } else {
-                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    if (mGoogleMap.getMapType()!= GoogleMap.MAP_TYPE_HYBRID)
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 }
             }
         });

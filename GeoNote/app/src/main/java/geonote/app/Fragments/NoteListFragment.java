@@ -2,6 +2,9 @@ package geonote.app.Fragments;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,8 +13,16 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 
 import geonote.app.Constants;
 import geonote.app.NoteInfo;
@@ -27,16 +38,9 @@ import geonote.app.R;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class NoteFragment extends Fragment implements AbsListView.OnItemClickListener {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class NoteListFragment
+        extends     Fragment
+        implements  AbsListView.OnItemClickListener {
 
     private OnFragmentInteractionListener mListener;
 
@@ -53,11 +57,9 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     private NotesRepository mNotesRepository;
 
     // TODO: Rename and change types of parameters
-    public static NoteFragment newInstance(String param1, String param2) {
-        NoteFragment fragment = new NoteFragment();
+    public static NoteListFragment newInstance() {
+        NoteListFragment fragment = new NoteListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,7 +68,7 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public NoteFragment() {
+    public NoteListFragment() {
     }
 
     @Override
@@ -74,16 +76,11 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
         setUpNotesRepository();
 
-        mAdapter = new ArrayAdapter<NoteInfo>(getActivity(),
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                mNotesRepository.getNotes());
+        mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
     }
 
     protected void setUpNotesRepository() {
@@ -163,6 +160,71 @@ public class NoteFragment extends Fragment implements AbsListView.OnItemClickLis
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
+    }
+
+    public class NoteListArrayAdapter extends ArrayAdapter<NoteInfo> {
+
+        private final Activity context;
+        private final NoteInfo[] mNotes;
+
+        public NoteListArrayAdapter(Activity context, NoteInfo[] notes) {
+            super(context, R.layout.notes_list_item_view, notes);
+            this.context = context;
+            this.mNotes = notes;
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+            NoteInfo noteInfo = mNotes[position];
+
+            LayoutInflater inflater = context.getLayoutInflater();
+
+            View rowView= inflater.inflate(R.layout.notes_list_item_view, null, true);
+
+            String getMapURL = "http://maps.googleapis.com/maps/api/staticmap?zoom=18&size=560x560&markers=size:mid|color:red|"
+                    + noteInfo.getLatLng().latitude
+                    + ","
+                    + noteInfo.getLatLng().longitude
+                    + "&sensor=false";
+
+            new DownloadImageTask((ImageView) rowView.findViewById(R.id.mapImageHolder))
+                    .execute(getMapURL);
+
+            TextView txtPlaceDetails = (TextView) rowView.findViewById(R.id.txt_list_view_place_details);
+            TextView txtAddress = (TextView) rowView.findViewById(R.id.txt_list_view_address);
+            TextView txtNotes = (TextView) rowView.findViewById(R.id.txt_list_view_notes);
+
+
+            txtPlaceDetails.setText(noteInfo.getAddressDetails());
+            txtAddress.setText(noteInfo.getAddress());
+            txtNotes.setText(noteInfo.toString());
+
+            return rowView;
+        }
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
     }
 
 }
