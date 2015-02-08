@@ -133,13 +133,13 @@ public class MapsActivity
                 //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
                 this.startActivityForResult(myIntent, ACTIVITY_LOGIN);
                 break;
-            */
 
             case R.id.action_listview:
                 Intent myIntent = new Intent(this, MainActivity.class);
                 //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
                 this.startActivityForResult(myIntent, Constants.ACTIVITY_NOTES_LIST);
                 break;
+            */
         }
 
         return super.onOptionsItemSelected(item);

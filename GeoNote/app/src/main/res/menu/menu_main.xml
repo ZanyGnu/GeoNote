@@ -11,9 +11,4 @@
         app:showAsAction="ifRoom" />
         -->
 
-    <item android:id="@+id/action_listview"
-        android:icon="@drawable/list2"
-        android:title="List"
-        app:showAsAction="ifRoom" />
-
 </menu>

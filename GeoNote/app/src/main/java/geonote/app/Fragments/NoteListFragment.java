@@ -17,12 +17,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.LatLng;
-
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
 
 import geonote.app.Constants;
 import geonote.app.NoteInfo;
