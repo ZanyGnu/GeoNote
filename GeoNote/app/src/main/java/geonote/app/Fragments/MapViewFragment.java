@@ -171,9 +171,12 @@ public class MapViewFragment
     }
 
     private void commitNotes() {
-        SharedPreferences settings = this.getActivity().getSharedPreferences(Constants.PREFS_NOTES, 0);
+        commitNotes(this.getActivity(), this.mNotesRepository);
+    }
+    public static void commitNotes(Activity activity, NotesRepository notesRepository) {
+        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
-        String notesJson = this.mNotesRepository.serializeToJson();
+        String notesJson = notesRepository.serializeToJson();
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
 
@@ -414,6 +417,7 @@ public class MapViewFragment
 
     protected void setUpMap() {
         final Activity currentActivity = getActivity();
+        final Fragment currentFragment = this;
 
         UiSettings uiSettings = mGoogleMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
@@ -432,9 +436,7 @@ public class MapViewFragment
                         LatLng position = marker.getPosition();
                         NoteInfo noteInfo = mNotesRepository.Notes.get(position);
 
-                        Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
-                        myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
-                        startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
+                        LaunchNoteViewActivity(noteInfo, currentActivity, currentFragment);
                     }
                 }
         );
@@ -466,6 +468,17 @@ public class MapViewFragment
                 addNewNote(latLng, currentActivity);
             }
         });
+    }
+
+    public static void LaunchNoteViewActivity(NoteInfo noteInfo, Activity currentActivity, Fragment currentFragment) {
+        Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
+        myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+        if (currentFragment != null) {
+            currentFragment.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
+        } else {
+            currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
+        }
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

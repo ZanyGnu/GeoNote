@@ -1,6 +1,7 @@
 package geonote.app.Fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -126,6 +127,33 @@ public class NoteListFragment
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(mNotesRepository.getNotes()[position].getAddressDetails());
+        }
+
+        MapViewFragment.LaunchNoteViewActivity(mNotesRepository.getNotes()[position], getActivity(), this);
+    }
+
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // If the request went well (OK) and the request was ACTIVITY_NOTE_VIEW
+        if (requestCode == Constants.ACTIVITY_NOTE_VIEW) {
+            NoteInfo noteInfo = null;
+
+            switch (resultCode) {
+                case Constants.RESULT_SAVE_NOTE:
+                    noteInfo = data.getParcelableExtra("result");
+
+                    // replace existing note with new note.
+                    this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
+
+                    break;
+
+                case Constants.RESULT_DELETE_NOTE:
+                    noteInfo = data.getParcelableExtra("result");
+                    this.mNotesRepository.Notes.remove(noteInfo.getLatLng());
+            }
+
+            // lets remember the changes
+            MapViewFragment.commitNotes(this.getActivity(), this.mNotesRepository);
         }
     }
 
