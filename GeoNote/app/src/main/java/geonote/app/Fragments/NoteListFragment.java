@@ -265,7 +265,12 @@ public class NoteListFragment
         }
 
         public int getCount() {
-            return mFilteredNotes.size();
+            if (mFilteredNotes == null)
+            {
+                return 0;
+            }
+
+            return  mFilteredNotes.size();
         }
 
         @Override
@@ -290,7 +295,10 @@ public class NoteListFragment
                     ArrayList<NoteInfo> filteredNotes = new ArrayList<NoteInfo>();
                     for(NoteInfo note: mNotes)
                     {
-                        if (note.toString().contains(charSequence))
+                        String searchTextLowerCase = charSequence.toString().toLowerCase();
+                        if (note.toString().toLowerCase().contains(searchTextLowerCase)
+                            || (note.getAddress() != null && note.getAddress().toLowerCase().contains(searchTextLowerCase))
+                            || (note.getAddressDetails() != null && note.getAddressDetails().toLowerCase().contains(searchTextLowerCase)))
                         {
                             filteredNotes.add(note);
                         }
