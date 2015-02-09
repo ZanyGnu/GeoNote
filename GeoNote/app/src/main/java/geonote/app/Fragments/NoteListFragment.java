@@ -20,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.io.InputStream;
@@ -164,10 +163,10 @@ public class NoteListFragment
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(mNotesRepository.getNotes().get(position).getAddressDetails());
+            mListener.onFragmentInteraction(mAdapter.getFilteredNotes().get(position).getAddressDetails());
         }
 
-        MapViewFragment.LaunchNoteViewActivity(mNotesRepository.getNotes().get(position), getActivity(), this);
+        MapViewFragment.LaunchNoteViewActivity(mAdapter.getFilteredNotes().get(position), getActivity(), this);
     }
 
 
@@ -238,7 +237,7 @@ public class NoteListFragment
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
-            NoteInfo noteInfo = mFilteredNotes.get(position);
+            NoteInfo noteInfo = this.mFilteredNotes.get(position);
 
             LayoutInflater inflater = context.getLayoutInflater();
 
@@ -314,6 +313,10 @@ public class NoteListFragment
                     notifyDataSetChanged();
                 }
             };
+        }
+
+        public ArrayList<NoteInfo> getFilteredNotes() {
+            return mFilteredNotes;
         }
     }
 
