@@ -131,13 +131,6 @@ public class MapViewFragment
         return mCurrentView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -156,15 +149,13 @@ public class MapViewFragment
     }
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
         setUpMapIfNeeded();
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         super.onStop();
 
         commitNotes();
@@ -173,6 +164,7 @@ public class MapViewFragment
     private void commitNotes() {
         commitNotes(this.getActivity(), this.mNotesRepository);
     }
+
     public static void commitNotes(Activity activity, NotesRepository notesRepository) {
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
@@ -354,11 +346,8 @@ public class MapViewFragment
 
         note = mNotesRepository.Notes.get(latLng);
 
-        Intent myIntent = new Intent(currentActivity, NoteViewActivity.class);
-        myIntent.putExtra("noteInfoExtra", note); //Optional parameters
-        currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
+        LaunchNoteViewActivity(note, this.getActivity(), this);
     }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
@@ -369,7 +358,6 @@ public class MapViewFragment
 
         mGoogleApiClient.connect();
     }
-
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();

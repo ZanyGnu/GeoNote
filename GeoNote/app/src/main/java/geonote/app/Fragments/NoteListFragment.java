@@ -8,17 +8,24 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import geonote.app.Constants;
 import geonote.app.NoteInfo;
@@ -49,7 +56,7 @@ public class NoteListFragment
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private NoteListArrayAdapter mAdapter;
     private NotesRepository mNotesRepository;
 
     // TODO: Rename and change types of parameters
@@ -95,12 +102,43 @@ public class NoteListFragment
 
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        setHasOptionsMenu(true);
+
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu (Menu menu, MenuInflater inflater){
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+
+        SearchView.OnQueryTextListener textChangeListener = new SearchView.OnQueryTextListener()
+        {
+            @Override
+            public boolean onQueryTextChange(String newText)
+            {
+                // this is your adapter that will be filtered
+                mAdapter.getFilter().filter(newText);
+                System.out.println("on text chnge text: "+newText);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query)
+            {
+                // this is your adapter that will be filtered
+                mAdapter.getFilter().filter(query);
+                System.out.println("on query submit: "+query);
+                return true;
+            }
+        };
+        searchView.setOnQueryTextListener(textChangeListener);
+
+        super.onCreateOptionsMenu(menu,this.getActivity().getMenuInflater());
     }
 
     @Override
@@ -126,10 +164,10 @@ public class NoteListFragment
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(mNotesRepository.getNotes()[position].getAddressDetails());
+            mListener.onFragmentInteraction(mNotesRepository.getNotes().get(position).getAddressDetails());
         }
 
-        MapViewFragment.LaunchNoteViewActivity(mNotesRepository.getNotes()[position], getActivity(), this);
+        MapViewFragment.LaunchNoteViewActivity(mNotesRepository.getNotes().get(position), getActivity(), this);
     }
 
 
@@ -185,20 +223,22 @@ public class NoteListFragment
         public void onFragmentInteraction(String id);
     }
 
-    public class NoteListArrayAdapter extends ArrayAdapter<NoteInfo> {
+    public class NoteListArrayAdapter extends ArrayAdapter<NoteInfo> implements Filterable {
 
         private final Activity context;
-        private final NoteInfo[] mNotes;
+        private ArrayList<NoteInfo> mNotes;
+        private ArrayList<NoteInfo> mFilteredNotes;
 
-        public NoteListArrayAdapter(Activity context, NoteInfo[] notes) {
+        public NoteListArrayAdapter(Activity context, ArrayList<NoteInfo> notes) {
             super(context, R.layout.notes_list_item_view, notes);
             this.context = context;
             this.mNotes = notes;
+            this.mFilteredNotes = notes;
         }
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
-            NoteInfo noteInfo = mNotes[position];
+            NoteInfo noteInfo = mFilteredNotes.get(position);
 
             LayoutInflater inflater = context.getLayoutInflater();
 
@@ -222,6 +262,50 @@ public class NoteListFragment
             txtNotes.setText(noteInfo.toString());
 
             return rowView;
+        }
+
+        public int getCount() {
+            return mFilteredNotes.size();
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence charSequence) {
+                    List<NoteInfo> filteredResult = getFilteredResults(charSequence);
+
+                    FilterResults results = new FilterResults();
+                    results.values = filteredResult;
+                    results.count = filteredResult.size();
+
+                    return results;
+                }
+
+                private List<NoteInfo> getFilteredResults(CharSequence charSequence) {
+                    if(charSequence.length() == 0 ) {
+                        return mNotes;
+                    }
+
+                    ArrayList<NoteInfo> filteredNotes = new ArrayList<NoteInfo>();
+                    for(NoteInfo note: mNotes)
+                    {
+                        if (note.toString().contains(charSequence))
+                        {
+                            filteredNotes.add(note);
+                        }
+                    }
+
+                    return filteredNotes;
+                }
+
+                @Override
+                protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                    mFilteredNotes = (ArrayList<NoteInfo>) filterResults.values;
+
+                    notifyDataSetChanged();
+                }
+            };
         }
     }
 
