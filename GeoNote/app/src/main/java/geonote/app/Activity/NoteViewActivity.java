@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 import geonote.app.Constants;
+import geonote.app.DownloadMapImageTask;
 import geonote.app.GooglePlaces;
 import geonote.app.Model.Place;
 import geonote.app.NoteInfo;
@@ -42,6 +44,7 @@ public class NoteViewActivity extends ActionBarActivity {
     TextView addressTextView = null;
     EditText editText = null;
     CheckBox checkBoxEnableAlerts = null;
+    ImageView mImageView = null;
 
     // region Overrides for ActionBarActivity
 
@@ -73,6 +76,14 @@ public class NoteViewActivity extends ActionBarActivity {
 
         checkBoxEnableAlerts = (CheckBox) findViewById(R.id.checkboxEnableAlerts);
         checkBoxEnableAlerts.setChecked(noteInfo.getEnableRaisingEvents());
+
+        mImageView = (ImageView)findViewById(R.id.noteMapImageHolder);
+
+        new DownloadMapImageTask(mImageView).execute(
+                (double) 600,
+                (double) 200,
+                noteInfo.getLatLng().latitude,
+                noteInfo.getLatLng().longitude);
     }
 
     @Override
@@ -190,7 +201,6 @@ public class NoteViewActivity extends ActionBarActivity {
 
         protected String doInBackground(String... args) {
             try {
-
                 LatLng latLng = noteInfo.getLatLng();
                 if (noteInfo.getAddress() != null) {
 

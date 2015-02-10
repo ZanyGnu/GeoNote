@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Constants;
+import geonote.app.DownloadMapImageTask;
 import geonote.app.NoteInfo;
 import geonote.app.NotesRepository;
 import geonote.app.R;
@@ -243,14 +244,11 @@ public class NoteListFragment
 
             View rowView= inflater.inflate(R.layout.notes_list_item_view, null, true);
 
-            String getMapURL = "http://maps.googleapis.com/maps/api/staticmap?zoom=18&size=560x560&markers=size:mid|color:red|"
-                    + noteInfo.getLatLng().latitude
-                    + ","
-                    + noteInfo.getLatLng().longitude
-                    + "&sensor=false";
-
-            new DownloadImageTask((ImageView) rowView.findViewById(R.id.mapImageHolder))
-                    .execute(getMapURL);
+            new DownloadMapImageTask((ImageView)rowView.findViewById(R.id.mapImageHolder)).execute(
+                    (double)560,
+                    (double)560,
+                    noteInfo.getLatLng().latitude,
+                    noteInfo.getLatLng().longitude);
 
             TextView txtPlaceDetails = (TextView) rowView.findViewById(R.id.txt_list_view_place_details);
             TextView txtAddress = (TextView) rowView.findViewById(R.id.txt_list_view_address);
@@ -319,29 +317,4 @@ public class NoteListFragment
             return mFilteredNotes;
         }
     }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
-    }
-
 }
