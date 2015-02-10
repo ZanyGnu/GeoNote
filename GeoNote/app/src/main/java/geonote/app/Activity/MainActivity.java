@@ -134,12 +134,12 @@ public class MainActivity
 
     @Override
     public void onFragmentInteraction(String id) {
-        Toast.makeText(this.getBaseContext(), "Got item id " + id, Toast.LENGTH_SHORT).show();
+        
     }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Toast.makeText(this.getBaseContext(), "Got URI " + uri, Toast.LENGTH_SHORT).show();
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
