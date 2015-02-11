@@ -22,9 +22,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import geonote.app.Constants;
 import geonote.app.Fragments.MapViewFragment;
 import geonote.app.Fragments.NoteListFragment;
 import geonote.app.R;
+import geonote.app.SettingsActivity;
 
 public class MainActivity
         extends     ActionBarActivity
@@ -111,6 +113,9 @@ public class MainActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent myIntent = new Intent(this, SettingsActivity.class);
+            //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
+            this.startActivityForResult(myIntent, Constants.ACTIVITY_SETTINGS);
             return true;
         }
 
