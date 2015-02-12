@@ -5,7 +5,7 @@
         android:title="Map">
 
         <CheckBoxPreference
-            android:key="MapShowDetailViewWhenZoomedIn"
+            android:key="@string/map_show_detail_view_when_zoomed_in"
             android:title="Show satellite view when zoomed in"/>
 
     </PreferenceCategory>
@@ -14,7 +14,7 @@
         android:title="Notifications">
 
         <CheckBoxPreference
-            android:key="ShowNotifications"
+            android:key="@string/enable_notifications"
             android:title="Show Notifications"
             android:summary="Show notifications when close to note"/>
 

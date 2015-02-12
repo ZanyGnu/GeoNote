@@ -14,6 +14,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
@@ -55,6 +56,7 @@ import geonote.app.NoteInfo;
 import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesRepository;
 import geonote.app.R;
+import geonote.app.Settings;
 
 
 public class MapViewFragment
@@ -83,6 +85,7 @@ public class MapViewFragment
     protected Bundle mSavedInstanceState;
     private View mCurrentView;
     private Fragment mFragment;
+    private Settings mSettings;
 
     /**
      * Factory method to create a new instance of this fragment.
@@ -103,6 +106,8 @@ public class MapViewFragment
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        this.mSettings = new Settings(this.getActivity());
 
         this.mSavedInstanceState = savedInstanceState;
 
@@ -241,6 +246,10 @@ public class MapViewFragment
     @Override
     public void onLocationChanged(Location location) {
         this.mLastLocation = location;
+
+        if (!mSettings.isNotificationsEnabled()) {
+            return ;
+        }
 
         // check if there is a note in the nearby location.
         float closestMatch = Integer.MAX_VALUE;
@@ -401,8 +410,6 @@ public class MapViewFragment
         }
     }
 
-
-
     protected void setUpMap() {
         final Activity currentActivity = getActivity();
         final Fragment currentFragment = this;
@@ -439,6 +446,9 @@ public class MapViewFragment
                     if (mGoogleMap.getMapType()!= defaultMapType)
                         mGoogleMap.setMapType(defaultMapType);
                 } else {
+                    if (!mSettings.shouldShowDetailViewWhenZoomedIn()) {
+                        return;
+                    }
                     if (mGoogleMap.getMapType()!= GoogleMap.MAP_TYPE_HYBRID)
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 }
