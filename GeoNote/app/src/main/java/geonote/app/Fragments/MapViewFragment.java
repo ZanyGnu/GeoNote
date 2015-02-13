@@ -14,13 +14,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -41,14 +38,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shamanland.fab.FloatingActionButton;
 
-import net.hockeyapp.android.CrashManager;
-import net.hockeyapp.android.UpdateManager;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
-import geonote.app.Activity.MainActivity;
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
 import geonote.app.GeoFenceWatcherService;
@@ -260,7 +253,7 @@ public class MapViewFragment
             // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
             // and the note requested for an alert, send a notification.
             float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
-            if (distanceFromNote < Constants.GEO_FENCE_RADIUS) {
+            if (distanceFromNote < mSettings.getGeoFenceRadius()) {
                 if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
                 {
                     closestMatch = distanceFromNote;
@@ -280,7 +273,7 @@ public class MapViewFragment
 
         // if the posted notification is outside of GEO_FENCE_RADIUS,
         // cancel the sent notification.
-        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= Constants.GEO_FENCE_RADIUS) {
+        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= mSettings.getGeoFenceRadius()) {
             mNotificationManager.cancel(Constants.CURRENT_NOTIFICATION_ID);
         }
     }

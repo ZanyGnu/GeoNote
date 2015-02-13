@@ -6,6 +6,7 @@
 
         <CheckBoxPreference
             android:key="@string/map_show_detail_view_when_zoomed_in"
+            android:defaultValue="True"
             android:title="Show satellite view when zoomed in"/>
 
     </PreferenceCategory>
@@ -16,8 +17,14 @@
         <CheckBoxPreference
             android:key="@string/enable_notifications"
             android:title="Show Notifications"
+            android:defaultValue="True"
             android:summary="Show notifications when close to note"/>
 
+        <ListPreference
+            android:key="@string/geo_fence_radius"
+            android:title="Geo Fence Radius"
+            android:defaultValue="100"
+            android:summary="Send notifications if you are within this many meters of the note." />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -25,4 +25,10 @@ public class Settings {
                 mContext.getString(R.string.enable_notifications),
                 true);
     }
+
+    public int getGeoFenceRadius() {
+        return mPreferences.getInt(
+                mContext.getString(R.string.geo_fence_radius),
+                100);
+    }
 }

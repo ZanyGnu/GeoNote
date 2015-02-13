@@ -25,7 +25,6 @@ public class Constants {
     public static final String PREFS_NOTES = "GeoNote.Preferences.V1";
     public static final String PREFS_NOTES_VALUES_JSON = "GeoNote.Preferences.V1.Notes";
     public static final String APP_ID = "e3ec817cadded7a87ea28a89852d8011";
-    public static final int GEO_FENCE_RADIUS = 100;
     public static final int CURRENT_NOTIFICATION_ID =0;
 
 }
