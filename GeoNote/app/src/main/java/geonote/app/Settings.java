@@ -27,8 +27,14 @@ public class Settings {
     }
 
     public int getGeoFenceRadius() {
-        return mPreferences.getInt(
-                mContext.getString(R.string.geo_fence_radius),
-                100);
+        try {
+            return Integer.parseInt(mPreferences.getString(
+                    mContext.getString(R.string.geo_fence_radius),
+                    "100"));
+        }
+        catch (NumberFormatException e)
+        {
+            return 100;
+        }
     }
 }

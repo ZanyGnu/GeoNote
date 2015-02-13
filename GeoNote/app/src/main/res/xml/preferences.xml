@@ -20,10 +20,11 @@
             android:defaultValue="True"
             android:summary="Show notifications when close to note"/>
 
-        <ListPreference
+        <EditTextPreference
             android:key="@string/geo_fence_radius"
             android:title="Geo Fence Radius"
             android:defaultValue="100"
+            android:inputType="number"
             android:summary="Send notifications if you are within this many meters of the note." />
     </PreferenceCategory>
 
