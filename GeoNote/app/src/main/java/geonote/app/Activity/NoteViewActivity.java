@@ -168,8 +168,11 @@ public class NoteViewActivity extends ActionBarActivity {
     private NoteInfo createNoteInfoFromUserData() {
         final NoteInfo newNoteInfo = new NoteInfo();
 
-        for (String note : editText.getText().toString().split("\n")) {
-            newNoteInfo.AddNote(note);
+        String editTextValue = editText.getText().toString();
+        if (editTextValue != null && !editTextValue.equals("")) {
+            for (String note : editText.getText().toString().split("\n")) {
+                newNoteInfo.AddNote(note);
+            }
         }
 
         // save modifications to address

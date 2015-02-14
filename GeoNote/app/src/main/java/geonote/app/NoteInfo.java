@@ -12,8 +12,8 @@ import com.google.android.gms.maps.model.LatLng;
 public class NoteInfo implements Parcelable {
     private static int NOTE_INFO_CURRENT_VERSION = 1;
     private LatLng LatLng;
-    private String AddressText;
-    private String AddressDetails;
+    private String AddressText = "";
+    private String AddressDetails = "";
     private Boolean EnableRaisingEvents;
     private ArrayList<String> Notes;
 
