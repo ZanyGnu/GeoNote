@@ -10,6 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.TextView;
+
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.model.GraphUser;
 
 import geonote.app.R;
 
@@ -23,6 +29,33 @@ public class LoginActivityFB extends ActionBarActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
+        }
+
+        populateLoggedInUser();
+    }
+
+    private void populateLoggedInUser() {
+
+        final TextView txtUserDetails = (TextView) this.findViewById(R.id.userDetails);
+
+        final Session session = Session.getActiveSession();
+        if (session != null && session.isOpened()) {
+            // If the session is open, make an API call to get user data
+            // and define a new callback to handle the response
+            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user, Response response) {
+                    // If the response is successful
+                    if (session == Session.getActiveSession()) {
+                        if (user != null) {
+                            String user_ID = user.getId();//user id
+                            String profileName = user.getName();//user's profile name
+                            txtUserDetails.setText(user.getName());
+                        }
+                    }
+                }
+            });
+            Request.executeBatchAsync(request);
         }
     }
 
