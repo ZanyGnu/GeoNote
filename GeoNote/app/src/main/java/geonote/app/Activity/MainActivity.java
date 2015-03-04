@@ -111,6 +111,10 @@ public class MainActivity
             //myIntent.putExtra("noteInfoExtra", noteInfo); //Optional parameters
             this.startActivityForResult(myIntent, Constants.ACTIVITY_SETTINGS);
             return true;
+        } else if (id == R.id.action_fb_signin) {
+            Intent myIntent = new Intent(this, LoginActivityFB.class);
+            this.startActivityForResult(myIntent, Constants.ACTIVITY_FB_LOGIN);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
