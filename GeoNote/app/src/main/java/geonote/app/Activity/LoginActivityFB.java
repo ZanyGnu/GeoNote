@@ -2,7 +2,6 @@ package geonote.app.Activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,8 +20,6 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
-
-import java.util.Arrays;
 
 import geonote.app.R;
 
@@ -68,11 +64,15 @@ public class LoginActivityFB extends ActionBarActivity {
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
     /**
-     * A placeholder fragment containing a simple view.
+     * Fragment containing the login button.
      */
     public static class PlaceholderFragment extends Fragment {
-
 
         private static final String TAG = "FacebookFragment";
         private UiLifecycleHelper uiHelper;
@@ -150,6 +150,7 @@ public class LoginActivityFB extends ActionBarActivity {
         }
 
         private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+            populateLoggedInUser();
             if (state.isOpened()) {
                 Log.i(TAG, "Logged in...");
             } else if (state.isClosed()) {
@@ -182,6 +183,8 @@ public class LoginActivityFB extends ActionBarActivity {
                     }
                 });
                 Request.executeBatchAsync(request);
+            } else if (session == null || session.isClosed()) {
+
             }
         }
     }

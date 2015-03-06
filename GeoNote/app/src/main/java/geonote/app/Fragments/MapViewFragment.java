@@ -20,8 +20,14 @@ import android.support.v4.app.NotificationCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -50,7 +56,6 @@ import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 import geonote.app.Settings;
-
 
 public class MapViewFragment
         extends Fragment
@@ -127,6 +132,28 @@ public class MapViewFragment
         checkAndHandleLocationIntent();
 
         return mCurrentView;
+    }
+
+    private void setupFacebookOverlay() {
+        final TextView txtUserDetails = (TextView) mCurrentView.findViewById(R.id.mapViewLoggedInUser);
+
+        Session session = Session.getActiveSession();
+        if (session != null && session.isOpened()) {
+            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user,
+                                        Response response) {
+                    if (user != null) {
+                        String user_ID = user.getId();//user id
+                        String profileName = user.getName();//user's profile name
+                        txtUserDetails.setText("Logged in as " + user.getName());
+                    }
+                }
+            });
+            Request.executeBatchAsync(request);
+        } else if (session.isClosed()) {
+            txtUserDetails.setText("");
+        }
     }
 
     @Override
@@ -496,6 +523,8 @@ public class MapViewFragment
 
             // lets remember the changes
             commitNotes();
+        } else if (requestCode == Constants.ACTIVITY_FB_LOGIN) {
+            setupFacebookOverlay();
         }
     }
 

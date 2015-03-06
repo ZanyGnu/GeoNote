@@ -23,4 +23,13 @@
             app:color="#FFDF4D38"
             />
 
+        <TextView
+            android:id="@+id/mapViewLoggedInUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_marginBottom="40dp"
+            android:layout_marginLeft="20dp" />
+
     </FrameLayout>
