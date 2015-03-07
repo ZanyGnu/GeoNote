@@ -64,11 +64,6 @@ public class LoginActivityFB extends ActionBarActivity {
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
-
     /**
      * Fragment containing the login button.
      */
@@ -146,6 +141,8 @@ public class LoginActivityFB extends ActionBarActivity {
         @Override
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
+            Session session = Session.getActiveSession();
+            Session.saveSession(session, outState);
             uiHelper.onSaveInstanceState(outState);
         }
 
@@ -153,6 +150,8 @@ public class LoginActivityFB extends ActionBarActivity {
             populateLoggedInUser();
             if (state.isOpened()) {
                 Log.i(TAG, "Logged in...");
+
+
             } else if (state.isClosed()) {
                 Log.i(TAG, "Logged out...");
             }

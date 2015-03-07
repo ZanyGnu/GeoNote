@@ -131,29 +131,51 @@ public class MapViewFragment
 
         checkAndHandleLocationIntent();
 
+        this.setupFacebookOverlay(savedInstanceState);
+
         return mCurrentView;
     }
 
-    private void setupFacebookOverlay() {
+    private void setupFacebookOverlay(Bundle savedInstanceState) {
         final TextView txtUserDetails = (TextView) mCurrentView.findViewById(R.id.mapViewLoggedInUser);
 
-        Session session = Session.getActiveSession();
-        if (session != null && session.isOpened()) {
-            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-                @Override
-                public void onCompleted(GraphUser user,
-                                        Response response) {
-                    if (user != null) {
-                        String user_ID = user.getId();//user id
-                        String profileName = user.getName();//user's profile name
-                        txtUserDetails.setText("Logged in as " + user.getName());
-                    }
+        Session.StatusCallback statusCallback = new Session.StatusCallback() {
+            @Override
+            public void call(final Session session, final SessionState state, final Exception exception) {
+
+                if (session != null && session.isOpened()) {
+                    Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+                        @Override
+                        public void onCompleted(GraphUser user,
+                                                Response response) {
+                            if (user != null) {
+                                String user_ID = user.getId();//user id
+                                String profileName = user.getName();//user's profile name
+                                txtUserDetails.setText("Logged in as " + user.getName());
+                            }
+                        }
+                    });
+                    Request.executeBatchAsync(request);
+                } else if (session.isClosed()) {
+                    txtUserDetails.setText("");
                 }
-            });
-            Request.executeBatchAsync(request);
-        } else if (session.isClosed()) {
-            txtUserDetails.setText("");
+            }
+        };
+
+        Session session = Session.getActiveSession();
+
+        if (session == null) {
+            if (savedInstanceState != null) {
+                session = Session.restoreSession(this.getActivity(), null, statusCallback, savedInstanceState);
+            }
+
+            if (session!=null) {
+                Session.setActiveSession(session);
+
+                session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
+            }
         }
+
     }
 
     @Override
@@ -523,8 +545,6 @@ public class MapViewFragment
 
             // lets remember the changes
             commitNotes();
-        } else if (requestCode == Constants.ACTIVITY_FB_LOGIN) {
-            setupFacebookOverlay();
         }
     }
 
