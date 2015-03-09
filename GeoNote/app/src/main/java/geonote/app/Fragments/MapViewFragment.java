@@ -136,29 +136,32 @@ public class MapViewFragment
         return mCurrentView;
     }
 
-    private void setupFacebookOverlay(Bundle savedInstanceState) {
+    private void onSessionStateChange(Session session) {
         final TextView txtUserDetails = (TextView) mCurrentView.findViewById(R.id.mapViewLoggedInUser);
+        if (session != null && session.isOpened()) {
+            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user,
+                                        Response response) {
+                    if (user != null) {
+                        String user_ID = user.getId();//user id
+                        String profileName = user.getName();//user's profile name
+                        txtUserDetails.setText("Logged in as " + user.getName());
+                    }
+                }
+            });
+            Request.executeBatchAsync(request);
+        } else if (session.isClosed()) {
+            txtUserDetails.setText("");
+        }
+    }
+
+    private void setupFacebookOverlay(Bundle savedInstanceState) {
 
         Session.StatusCallback statusCallback = new Session.StatusCallback() {
             @Override
             public void call(final Session session, final SessionState state, final Exception exception) {
-
-                if (session != null && session.isOpened()) {
-                    Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-                        @Override
-                        public void onCompleted(GraphUser user,
-                                                Response response) {
-                            if (user != null) {
-                                String user_ID = user.getId();//user id
-                                String profileName = user.getName();//user's profile name
-                                txtUserDetails.setText("Logged in as " + user.getName());
-                            }
-                        }
-                    });
-                    Request.executeBatchAsync(request);
-                } else if (session.isClosed()) {
-                    txtUserDetails.setText("");
-                }
+                onSessionStateChange(session);
             }
         };
 
@@ -171,9 +174,16 @@ public class MapViewFragment
 
             if (session!=null) {
                 Session.setActiveSession(session);
+            }
+        }
 
+        if (session!=null) {
+
+            if(!session.isOpened()) {
                 session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
             }
+
+            onSessionStateChange(session);
         }
 
     }
