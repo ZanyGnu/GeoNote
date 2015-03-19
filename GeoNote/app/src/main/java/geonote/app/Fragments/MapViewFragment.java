@@ -27,6 +27,7 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
+import com.facebook.TokenCachingStrategy;
 import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -170,6 +171,10 @@ public class MapViewFragment
         if (session == null) {
             if (savedInstanceState != null) {
                 session = Session.restoreSession(this.getActivity(), null, statusCallback, savedInstanceState);
+            }
+
+            if (session == null) {
+                session = new Session(this.getActivity());
             }
 
             if (session!=null) {
