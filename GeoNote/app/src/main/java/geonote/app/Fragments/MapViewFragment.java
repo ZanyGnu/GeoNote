@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
+import geonote.app.Activity.LoginActivityFB;
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
 import geonote.app.GeoFenceWatcherService;
@@ -59,7 +60,7 @@ import geonote.app.R;
 import geonote.app.Settings;
 
 public class MapViewFragment
-        extends Fragment
+        extends BaseFacebookHandlerFragment
         implements  GoogleApiClient.ConnectionCallbacks,
                     GoogleApiClient.OnConnectionFailedListener,
                     LocationListener {
@@ -132,12 +133,11 @@ public class MapViewFragment
 
         checkAndHandleLocationIntent();
 
-        this.setupFacebookOverlay(savedInstanceState);
-
         return mCurrentView;
     }
 
-    private void onSessionStateChange(Session session) {
+    @Override
+    protected void onSessionStateChange(Session session, SessionState state, Exception exception){
         final TextView txtUserDetails = (TextView) mCurrentView.findViewById(R.id.mapViewLoggedInUser);
         if (session != null && session.isOpened()) {
             Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -155,42 +155,6 @@ public class MapViewFragment
         } else if (session.isClosed()) {
             txtUserDetails.setText("");
         }
-    }
-
-    private void setupFacebookOverlay(Bundle savedInstanceState) {
-
-        Session.StatusCallback statusCallback = new Session.StatusCallback() {
-            @Override
-            public void call(final Session session, final SessionState state, final Exception exception) {
-                onSessionStateChange(session);
-            }
-        };
-
-        Session session = Session.getActiveSession();
-
-        if (session == null) {
-            if (savedInstanceState != null) {
-                session = Session.restoreSession(this.getActivity(), null, statusCallback, savedInstanceState);
-            }
-
-            if (session == null) {
-                session = new Session(this.getActivity());
-            }
-
-            if (session!=null) {
-                Session.setActiveSession(session);
-            }
-        }
-
-        if (session!=null) {
-
-            if(!session.isOpened()) {
-                session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
-            }
-
-            onSessionStateChange(session);
-        }
-
     }
 
     @Override

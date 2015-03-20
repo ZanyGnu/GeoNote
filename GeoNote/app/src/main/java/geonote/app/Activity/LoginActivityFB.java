@@ -21,6 +21,7 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 
+import geonote.app.Fragments.BaseFacebookHandlerFragment;
 import geonote.app.R;
 
 public class LoginActivityFB extends ActionBarActivity {
@@ -67,16 +68,7 @@ public class LoginActivityFB extends ActionBarActivity {
     /**
      * Fragment containing the login button.
      */
-    public static class PlaceholderFragment extends Fragment {
-
-        private static final String TAG = "FacebookFragment";
-        private UiLifecycleHelper uiHelper;
-        private Session.StatusCallback callback = new Session.StatusCallback() {
-            @Override
-            public void call(final Session session, final SessionState state, final Exception exception) {
-                onSessionStateChange(session, state, exception);
-            }
-        };
+    public static class PlaceholderFragment extends BaseFacebookHandlerFragment {
 
         @Override
         public View onCreateView(LayoutInflater inflater,
@@ -86,7 +78,6 @@ public class LoginActivityFB extends ActionBarActivity {
             LoginButton authButton = (LoginButton) view.findViewById(R.id.authButton);
             authButton.setFragment(this);
             //authButton.setReadPermissions(Arrays.asList("user_likes", "user_status"));
-
 
             Button button = (Button) view.findViewById(R.id.buttonGetUserDetails);
             button.setOnClickListener(new View.OnClickListener()
@@ -102,63 +93,9 @@ public class LoginActivityFB extends ActionBarActivity {
         }
 
         @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            uiHelper = new UiLifecycleHelper(getActivity(), callback);
-            uiHelper.onCreate(savedInstanceState);
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-            Session session = Session.getActiveSession();
-            if (session != null &&
-                    (session.isOpened() || session.isClosed()) ) {
-                onSessionStateChange(session, session.getState(), null);
-            }
-
-            uiHelper.onResume();
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            uiHelper.onActivityResult(requestCode, resultCode, data);
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-            uiHelper.onPause();
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            uiHelper.onDestroy();
-        }
-
-        @Override
-        public void onSaveInstanceState(Bundle outState) {
-            super.onSaveInstanceState(outState);
-            Session session = Session.getActiveSession();
-            Session.saveSession(session, outState);
-            uiHelper.onSaveInstanceState(outState);
-        }
-
-        private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        protected void onSessionStateChange(Session session, SessionState state, Exception exception){
             populateLoggedInUser();
-            if (state.isOpened()) {
-                Log.i(TAG, "Logged in...");
-
-
-            } else if (state.isClosed()) {
-                Log.i(TAG, "Logged out...");
-            }
-            else
-                Log.i(TAG, session.toString());
         }
-
 
         private void populateLoggedInUser() {
 
@@ -187,6 +124,4 @@ public class LoginActivityFB extends ActionBarActivity {
             }
         }
     }
-
-
 }
