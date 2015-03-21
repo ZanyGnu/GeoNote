@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Droplet.DropletServer;
+import geonote.app.Tasks.GetDropletTask;
 import geonote.app.Tasks.SaveDropletTask;
 import geonote.app.Fragments.BaseFacebookHandlerFragment;
 import geonote.app.Droplet.Model.Droplet;
@@ -95,7 +96,7 @@ public class LoginActivityFB extends ActionBarActivity {
                     droplets.add(new Droplet("DropletName1", "DropletContent 1"));
                     droplets.add(new Droplet("DropletName2", "DropletContent 2"));
                     droplets.add(new Droplet("DropletName3", "DropletContent 3"));
-                    new LoadDroplets().execute();
+                    new GetDropletTask().execute("testcontainer");
                     new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam("testcontainer", droplets));
                 }
             });
@@ -133,34 +134,6 @@ public class LoginActivityFB extends ActionBarActivity {
             } else if (session == null || session.isClosed()) {
 
             }
-        }
-    }
-
-    static class LoadDroplets extends AsyncTask<String, String, String> {
-
-        DropletServer dropletServer = new DropletServer();
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        protected String doInBackground(String... args) {
-            try {
-                List<Droplet> droplets = dropletServer.getDroplets("testcontainer");
-            } catch (Exception e) {
-                System.out.println("Unhandled exception trying to get droplets: " + e.toString());
-            }
-            return null;
-        }
-
-        /**
-         * After completing background task show the data in UI
-         * Use runOnUiThread(new Runnable()) to update UI from background
-         * **/
-        protected void onPostExecute(String file_url) {
-
         }
     }
 }
