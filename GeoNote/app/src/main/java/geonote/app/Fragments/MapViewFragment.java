@@ -146,7 +146,6 @@ public class MapViewFragment
                 public void onCompleted(GraphUser user,
                                         Response response) {
                     if (user != null) {
-                        String user_ID = user.getId();//user id
                         String profileName = user.getName();//user's profile name
                         txtUserDetails.setText("Logged in as " + user.getName());
                     }
@@ -189,10 +188,10 @@ public class MapViewFragment
     }
 
     private void commitNotes() {
-        commitNotes(this.getActivity(), this.mNotesRepository);
+        commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
     }
 
-    public static void commitNotes(Activity activity, NotesRepository notesRepository) {
+    static public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         String notesJson = notesRepository.serializeToJson();
@@ -204,11 +203,12 @@ public class MapViewFragment
 
         // If the user is logged in, lets also send these notes to the droplet server
         // and associate it with the logged in user.
-        String userName = "testcontainer";
-        Droplet notesDroplet = new Droplet("notes", notesJson);
-        ArrayList<Droplet> droplets = new ArrayList<Droplet>();
-        droplets.add(notesDroplet);
-        new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
+        if (userName != null && userName != "") {
+            Droplet notesDroplet = new Droplet("notes", notesJson);
+            ArrayList<Droplet> droplets = new ArrayList<>();
+            droplets.add(notesDroplet);
+            new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
+        }
     }
 
     /**

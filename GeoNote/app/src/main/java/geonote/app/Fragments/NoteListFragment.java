@@ -38,7 +38,7 @@ import geonote.app.R;
  * interface.
  */
 public class NoteListFragment
-        extends     Fragment
+        extends     BaseFacebookHandlerFragment
         implements  AbsListView.OnItemClickListener {
 
     private OnFragmentInteractionListener mListener;
@@ -187,7 +187,7 @@ public class NoteListFragment
             }
 
             // lets remember the changes
-            MapViewFragment.commitNotes(this.getActivity(), this.mNotesRepository);
+            MapViewFragment.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
         }
     }
 
