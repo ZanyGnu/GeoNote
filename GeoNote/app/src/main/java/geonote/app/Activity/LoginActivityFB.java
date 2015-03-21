@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Droplet.DropletServer;
-import geonote.app.Droplet.SaveDroplet;
+import geonote.app.Tasks.SaveDropletTask;
 import geonote.app.Fragments.BaseFacebookHandlerFragment;
 import geonote.app.Droplet.Model.Droplet;
 import geonote.app.R;
@@ -89,14 +89,14 @@ public class LoginActivityFB extends ActionBarActivity {
                 @Override
                 public void onClick(View v)
                 {
-
                     populateLoggedInUser();
+
                     ArrayList<Droplet> droplets = new ArrayList<Droplet>();
                     droplets.add(new Droplet("DropletName1", "DropletContent 1"));
                     droplets.add(new Droplet("DropletName2", "DropletContent 2"));
                     droplets.add(new Droplet("DropletName3", "DropletContent 3"));
                     new LoadDroplets().execute();
-                    new SaveDroplet().execute(droplets);
+                    new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam("testcontainer", droplets));
                 }
             });
 

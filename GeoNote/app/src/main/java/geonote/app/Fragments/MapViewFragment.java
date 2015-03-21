@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shamanland.fab.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -57,6 +58,7 @@ import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 import geonote.app.Settings;
+import geonote.app.Tasks.SaveDropletTask;
 
 public class MapViewFragment
         extends BaseFacebookHandlerFragment
@@ -202,9 +204,11 @@ public class MapViewFragment
 
         // If the user is logged in, lets also send these notes to the droplet server
         // and associate it with the logged in user.
-
+        String userName = "testcontainer";
         Droplet notesDroplet = new Droplet("notes", notesJson);
-
+        ArrayList<Droplet> droplets = new ArrayList<Droplet>();
+        droplets.add(notesDroplet);
+        new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
     }
 
     /**
