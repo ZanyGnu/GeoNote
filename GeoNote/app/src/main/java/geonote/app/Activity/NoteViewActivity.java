@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Locale;
 
 import geonote.app.Constants;
-import geonote.app.DownloadMapImageTask;
-import geonote.app.GooglePlaces;
-import geonote.app.Model.Place;
+import geonote.app.Tasks.DownloadMapImageTask;
+import geonote.app.GooglePlaces.GooglePlaces;
+import geonote.app.GooglePlaces.Model.Place;
 import geonote.app.NoteInfo;
 import geonote.app.NotesRepository;
 import geonote.app.R;

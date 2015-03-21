@@ -1,41 +1,31 @@
 package geonote.app.Activity;
 
 import android.content.Intent;
-import android.location.Address;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import geonote.app.DropletServer;
+import geonote.app.Droplet.DropletServer;
+import geonote.app.Droplet.SaveDroplet;
 import geonote.app.Fragments.BaseFacebookHandlerFragment;
-import geonote.app.GooglePlaces;
-import geonote.app.Model.Droplet;
-import geonote.app.Model.Place;
-import geonote.app.NotesRepository;
+import geonote.app.Droplet.Model.Droplet;
 import geonote.app.R;
 
 public class LoginActivityFB extends ActionBarActivity {
@@ -106,7 +96,7 @@ public class LoginActivityFB extends ActionBarActivity {
                     droplets.add(new Droplet("DropletName2", "DropletContent 2"));
                     droplets.add(new Droplet("DropletName3", "DropletContent 3"));
                     new LoadDroplets().execute();
-                    new SaveDroplets().execute(droplets);
+                    new SaveDroplet().execute(droplets);
                 }
             });
 
@@ -143,35 +133,6 @@ public class LoginActivityFB extends ActionBarActivity {
             } else if (session == null || session.isClosed()) {
 
             }
-        }
-    }
-
-    static class SaveDroplets extends AsyncTask<List<Droplet>, String, String> {
-
-        DropletServer dropletServer = new DropletServer();
-
-        @Override
-        protected String doInBackground(List<Droplet>... params) {
-            try {
-                dropletServer.putDroplets("testcontainer", params[0]);
-            } catch (Exception e) {
-                System.out.println("Unhandled exception trying to get droplets: " + e.toString());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        /**
-         * After completing background task show the data in UI
-         * Use runOnUiThread(new Runnable()) to update UI from background
-         * **/
-        protected void onPostExecute(String param) {
-
         }
     }
 

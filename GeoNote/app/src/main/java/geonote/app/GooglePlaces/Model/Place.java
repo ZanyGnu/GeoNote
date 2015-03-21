@@ -1,4 +1,4 @@
-package geonote.app.Model;
+package geonote.app.GooglePlaces.Model;
 
 import java.io.Serializable;
 

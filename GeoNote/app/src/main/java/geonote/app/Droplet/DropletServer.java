@@ -1,9 +1,5 @@
-package geonote.app;
+package geonote.app.Droplet;
 
-import android.os.AsyncTask;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.api.client.http.ByteArrayContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
 import com.google.api.client.http.HttpRequest;
@@ -20,10 +16,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import geonote.app.Model.Droplet;
-import geonote.app.Model.Place;
-import geonote.app.Model.PlaceDetails;
-import geonote.app.Model.PlacesList;
+import geonote.app.Droplet.Model.Droplet;
 
 public class DropletServer {
 

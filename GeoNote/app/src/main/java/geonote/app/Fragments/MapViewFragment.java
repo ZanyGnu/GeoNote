@@ -27,7 +27,6 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.TokenCachingStrategy;
 import com.facebook.model.GraphUser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,10 +48,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
-import geonote.app.Activity.LoginActivityFB;
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
 import geonote.app.GeoFenceWatcherService;
+import geonote.app.Droplet.Model.Droplet;
 import geonote.app.NoteInfo;
 import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesRepository;
@@ -200,6 +199,12 @@ public class MapViewFragment
 
         // Commit the edits!
         editor.commit();
+
+        // If the user is logged in, lets also send these notes to the droplet server
+        // and associate it with the logged in user.
+
+        Droplet notesDroplet = new Droplet("notes", notesJson);
+
     }
 
     /**

@@ -1,4 +1,4 @@
-package geonote.app;
+package geonote.app.Tasks;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

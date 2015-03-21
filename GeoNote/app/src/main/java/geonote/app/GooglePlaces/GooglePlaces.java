@@ -1,6 +1,4 @@
-package geonote.app;
-
-import android.os.AsyncTask;
+package geonote.app.GooglePlaces;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.api.client.http.GenericUrl;
@@ -13,9 +11,9 @@ import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
-import geonote.app.Model.Place;
-import geonote.app.Model.PlaceDetails;
-import geonote.app.Model.PlacesList;
+import geonote.app.GooglePlaces.Model.Place;
+import geonote.app.GooglePlaces.Model.PlaceDetails;
+import geonote.app.GooglePlaces.Model.PlacesList;
 
 public class GooglePlaces {
 

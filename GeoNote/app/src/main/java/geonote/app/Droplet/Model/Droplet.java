@@ -1,4 +1,4 @@
-package geonote.app.Model;
+package geonote.app.Droplet.Model;
 
 import com.google.api.client.util.Key;
 
