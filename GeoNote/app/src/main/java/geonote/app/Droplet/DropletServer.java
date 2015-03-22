@@ -24,8 +24,8 @@ public class DropletServer {
     private static final JacksonFactory jacksonFactory = new JacksonFactory();
 
     // The different API endpoints.
-    private static final String DROPLET_GET_URL =  "http://192.168.1.153:8080/d/";
-    private static final String DROPLET_POST_URL =  "http://192.168.1.153:8080/d/";
+    private static final String DROPLET_GET_URL =  "http://droplets.cloudapp.net/d/";
+    private static final String DROPLET_POST_URL =  "http://droplets.cloudapp.net/d/";
 
     public DropletServer()
     {
