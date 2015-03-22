@@ -191,12 +191,23 @@ public class MapViewFragment
         commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
     }
 
+    protected void setUpNotesRepository() {
+        mNotesRepository = new NotesRepository(this.mGeocoder);
+        loadNotes(getActivity(), mNotesRepository);
+    }
+
     static public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
+
+        // increment the version of the notes every time we commit
+        notesRepository.NotesVersion++;
+
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         String notesJson = notesRepository.serializeToJson();
         SharedPreferences.Editor editor = settings.edit();
+
         editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
+        editor.putInt(Constants.PREFS_NOTES_VERSION, notesRepository.NotesVersion);
 
         // Commit the edits!
         editor.commit();
@@ -204,11 +215,24 @@ public class MapViewFragment
         // If the user is logged in, lets also send these notes to the droplet server
         // and associate it with the logged in user.
         if (userName != null && userName != "") {
-            Droplet notesDroplet = new Droplet("notes", notesJson);
+
             ArrayList<Droplet> droplets = new ArrayList<>();
-            droplets.add(notesDroplet);
-            new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
+
+            droplets.add(new Droplet("notes", notesJson));
+            droplets.add(new Droplet("notes-version", notesRepository.NotesVersion.toString()));
+
+            new SaveDropletTask().execute(
+                    new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
         }
+    }
+
+    static public void loadNotes(Activity activity, NotesRepository notesRepository) {
+        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
+        Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);
+
+        notesRepository.deserializeFromJson(settingJson, notesVersion);
     }
 
     /**
@@ -403,14 +427,6 @@ public class MapViewFragment
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    protected void setUpNotesRepository() {
-        SharedPreferences settings = getActivity().getSharedPreferences(Constants.PREFS_NOTES, 0);
-        String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
-
-        mNotesRepository = new NotesRepository(this.mGeocoder);
-        mNotesRepository.deserializeFromJson(settingJson);
     }
 
     @Override

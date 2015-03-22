@@ -22,7 +22,7 @@ public class NotesRepository {
     static final LatLng ADDRESS_14711 = new LatLng(47.734796, -122.159598);
 
     public HashMap<LatLng, NoteInfo> Notes = new HashMap<LatLng, NoteInfo>();
-
+    public Integer NotesVersion = 0;
     private Geocoder geocoder;
 
     public NotesRepository(Geocoder geocoder)
@@ -110,7 +110,7 @@ public class NotesRepository {
         return json;
     }
 
-    public void deserializeFromJson(String jsonString)
+    public void deserializeFromJson(String jsonString, Integer version)
     {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.enableComplexMapKeySerialization().setPrettyPrinting().create();
@@ -126,6 +126,8 @@ public class NotesRepository {
         {
             this.populateDefaultValues();
         }
+
+        this.NotesVersion = version;
     }
 
     public ArrayList<NoteInfo> getNotes()

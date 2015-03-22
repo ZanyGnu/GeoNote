@@ -84,11 +84,8 @@ public class NoteListFragment
 
     protected void setUpNotesRepository() {
 
-        SharedPreferences settings = this.getActivity().getSharedPreferences(Constants.PREFS_NOTES, 0);
-        String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
-
         mNotesRepository = new NotesRepository(null);
-        mNotesRepository.deserializeFromJson(settingJson);
+        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository);
     }
 
     @Override
