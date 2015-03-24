@@ -58,6 +58,7 @@ import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 import geonote.app.Settings;
+import geonote.app.Tasks.GetDropletTask;
 import geonote.app.Tasks.SaveDropletTask;
 
 public class MapViewFragment
@@ -193,7 +194,7 @@ public class MapViewFragment
 
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(this.mGeocoder);
-        loadNotes(getActivity(), mNotesRepository);
+        loadNotes(getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
     static public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
@@ -204,10 +205,11 @@ public class MapViewFragment
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         String notesJson = notesRepository.serializeToJson();
+        Integer notesVersion = notesRepository.NotesVersion;
         SharedPreferences.Editor editor = settings.edit();
 
         editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
-        editor.putInt(Constants.PREFS_NOTES_VERSION, notesRepository.NotesVersion);
+        editor.putInt(Constants.PREFS_NOTES_VERSION, notesVersion);
 
         // Commit the edits!
         editor.commit();
@@ -216,23 +218,67 @@ public class MapViewFragment
         // and associate it with the logged in user.
         if (userName != null && userName != "") {
 
-            ArrayList<Droplet> droplets = new ArrayList<>();
-
-            droplets.add(new Droplet("notes", notesJson));
-            droplets.add(new Droplet("notes-version", notesRepository.NotesVersion.toString()));
-
-            new SaveDropletTask().execute(
-                    new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
+            saveNotesToCloud(userName, notesJson, notesVersion);
         }
     }
 
-    static public void loadNotes(Activity activity, NotesRepository notesRepository) {
+    private static void saveNotesToCloud(String userName, String notesJson, Integer notesVersion) {
+        ArrayList<Droplet> droplets = new ArrayList<>();
+
+        droplets.add(new Droplet("notes", notesJson));
+        droplets.add(new Droplet("notes-version", notesVersion.toString()));
+
+        new SaveDropletTask().execute(
+                new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
+    }
+
+    static public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
-        String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
-        Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);
+        final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
+        final Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);
 
-        notesRepository.deserializeFromJson(settingJson, notesVersion);
+        System.out.println("LoadNotes: looking for logged in user");
+        // If the user is logged in, lets also send these notes to the droplet server
+        // and associate it with the logged in user.
+        if (userName != null && userName != "") {
+
+            System.out.println("LoadNotes: Found logged in user");
+            ArrayList<Droplet> droplets = new ArrayList<>();
+
+            new GetDropletTask() {
+                @Override
+                protected void onPostExecute(Droplet result) {
+                    final Integer notesVersionOnServer = Integer.parseInt(result.Content);
+
+                    System.out.println("LoadNotes: notesVersionOnServer " + notesVersionOnServer);
+                    System.out.println("LoadNotes: notesVersionLocal " + notesVersion);
+
+                    if (notesVersionOnServer > notesVersion) {
+                        System.out.println("LoadNotes: getting notes from the cloud");
+                        new GetDropletTask() {
+                            @Override
+                            protected void onPostExecute(Droplet result) {
+                                System.out.println("LoadNotes: got notes from the cloud, loading repository");
+                                notesRepository.deserializeFromJson(result.Content, notesVersionOnServer);
+                            }
+                        }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes"));
+                    }
+                    else {
+                        // the version in the local machine is more advanced. Load that instead
+                        // and queue a work item to update the cloud version.
+
+                        notesRepository.deserializeFromJson(settingJson, notesVersion);
+                        saveNotesToCloud(userName, settingJson, notesVersion);
+                    }
+                }
+            }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes-version"));
+        }
+        else
+            // no user logged in, load the version from local disk.
+            System.out.println("LoadNotes: Loading notes from local machine.");
+            notesRepository.deserializeFromJson(settingJson, notesVersion);
+        }
     }
 
     /**

@@ -12,6 +12,7 @@ import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.Key;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,21 @@ public class DropletServer {
             droplets = request.execute().parseAs(droplets.getClass());
             System.out.println(droplets);
             return droplets;
+
+        } catch (HttpResponseException e) {
+            System.err.println(e.getStatusMessage());
+            throw e;
+        }
+    }
+
+    public Droplet getDroplet(String userName, String dropletName) throws Exception {
+        try {
+            System.out.println("Perform droplet item search ....");
+            HttpRequestFactory httpRequestFactory = createRequestFactory(transport);
+            HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(DROPLET_GET_URL + userName + "/" + dropletName));
+            Droplet droplet = request.execute().parseAs(Droplet.class);
+            System.out.println(droplet);
+            return droplet;
 
         } catch (HttpResponseException e) {
             System.err.println(e.getStatusMessage());

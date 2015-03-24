@@ -85,7 +85,7 @@ public class NoteListFragment
     protected void setUpNotesRepository() {
 
         mNotesRepository = new NotesRepository(null);
-        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository);
+        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
     @Override

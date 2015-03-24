@@ -7,7 +7,19 @@ import java.util.List;
 import geonote.app.Droplet.DropletServer;
 import geonote.app.Droplet.Model.Droplet;
 
-public class GetDropletTask extends AsyncTask<String, String, List<Droplet>> {
+public class GetDropletTask extends AsyncTask<GetDropletTask.GetDropletTaskParam, String, Droplet> {
+
+    static public class GetDropletTaskParam
+    {
+        String UserName;
+        String DropletName;
+
+        public GetDropletTaskParam(String userName, String dropletName)
+        {
+            this.DropletName = dropletName;
+            this.UserName = userName;
+        }
+    }
 
     DropletServer dropletServer = new DropletServer();
 
@@ -16,21 +28,21 @@ public class GetDropletTask extends AsyncTask<String, String, List<Droplet>> {
         super.onPreExecute();
     }
 
-    protected List<Droplet> doInBackground(String... args) {
-        List<Droplet> droplets = null;
+    protected Droplet doInBackground(GetDropletTaskParam... args) {
+        Droplet droplet = null;
 
         try {
 
-            droplets = dropletServer.getDroplets(args[0]);
+            droplet = dropletServer.getDroplet(args[0].UserName, args[0].DropletName);
 
         } catch (Exception e) {
             System.out.println("Unhandled exception trying to get droplets: " + e.toString());
         }
 
-        return droplets;
+        return droplet;
     }
 
-    protected void onPostExecute(String arg) {
+    protected void onPostExecute(Droplet result) {
 
     }
 }

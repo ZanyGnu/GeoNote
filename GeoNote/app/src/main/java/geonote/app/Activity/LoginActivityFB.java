@@ -24,6 +24,7 @@ import java.util.List;
 
 import geonote.app.Droplet.DropletServer;
 import geonote.app.Tasks.GetDropletTask;
+import geonote.app.Tasks.GetDropletsTask;
 import geonote.app.Tasks.SaveDropletTask;
 import geonote.app.Fragments.BaseFacebookHandlerFragment;
 import geonote.app.Droplet.Model.Droplet;
@@ -96,7 +97,7 @@ public class LoginActivityFB extends ActionBarActivity {
                     droplets.add(new Droplet("DropletName1", "DropletContent 1"));
                     droplets.add(new Droplet("DropletName2", "DropletContent 2"));
                     droplets.add(new Droplet("DropletName3", "DropletContent 3"));
-                    new GetDropletTask().execute("testcontainer");
+                    new GetDropletsTask().execute("testcontainer");
                     new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam("testcontainer", droplets));
                 }
             });
