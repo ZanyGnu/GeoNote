@@ -19,6 +19,12 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.model.GraphUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,7 +91,7 @@ public class NoteListFragment
     protected void setUpNotesRepository() {
 
         mNotesRepository = new NotesRepository(null);
-        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
+        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername(), null, null);
     }
 
     @Override
@@ -163,6 +169,26 @@ public class NoteListFragment
         MapViewFragment.LaunchNoteViewActivity(mAdapter.getFilteredNotes().get(position), getActivity(), this);
     }
 
+    @Override
+    protected void onSessionStateChange(Session session, SessionState state, Exception exception){
+
+        if (session != null && session.isOpened()) {
+            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user,
+                                        Response response) {
+                    if (user != null) {
+                        String profileName = user.getName();//user's profile name
+
+                        MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+                    }
+                }
+            });
+            Request.executeBatchAsync(request);
+        } else if (session.isClosed()) {
+            MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+        }
+    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If the request went well (OK) and the request was ACTIVITY_NOTE_VIEW
