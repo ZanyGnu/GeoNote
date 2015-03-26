@@ -11,6 +11,8 @@ public class Droplet  implements Serializable {
     @Key
     public String Content;
 
+    public Droplet() { }
+
     public Droplet(String name, String content)
     {
         this.Name = name;

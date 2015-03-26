@@ -149,12 +149,14 @@ public class MapViewFragment
                     if (user != null) {
                         String profileName = user.getName();//user's profile name
                         txtUserDetails.setText("Logged in as " + user.getName());
+                        loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), mMarkers, mGoogleMap);
                     }
                 }
             });
             Request.executeBatchAsync(request);
         } else if (session.isClosed()) {
             txtUserDetails.setText("");
+            loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), mMarkers, mGoogleMap);
         }
     }
 
@@ -178,6 +180,7 @@ public class MapViewFragment
     @Override
     public void onStart() {
         super.onStart();
+
         setUpMapIfNeeded();
     }
 
@@ -194,7 +197,6 @@ public class MapViewFragment
 
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(this.mGeocoder);
-        loadNotes(getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
     static public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
@@ -232,7 +234,9 @@ public class MapViewFragment
                 new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
     }
 
-    static public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
+    static public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName,
+                                 final HashMap<LatLng, Marker> mMarkers, final GoogleMap mGoogleMap) {
+
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
@@ -260,24 +264,37 @@ public class MapViewFragment
                             @Override
                             protected void onPostExecute(Droplet result) {
                                 System.out.println("LoadNotes: got notes from the cloud, loading repository");
-                                notesRepository.deserializeFromJson(result.Content, notesVersionOnServer);
+                                populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, result.Content, notesVersionOnServer);
+
                             }
                         }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes"));
                     }
                     else {
                         // the version in the local machine is more advanced. Load that instead
                         // and queue a work item to update the cloud version.
-
-                        notesRepository.deserializeFromJson(settingJson, notesVersion);
+                        populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
                         saveNotesToCloud(userName, settingJson, notesVersion);
                     }
                 }
             }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes-version"));
         }
-        else
+        else {
             // no user logged in, load the version from local disk.
             System.out.println("LoadNotes: Loading notes from local machine.");
-            notesRepository.deserializeFromJson(settingJson, notesVersion);
+            populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
+        }
+    }
+
+    private static void populateRepositoryAndMaps(NotesRepository notesRepository,
+                                                  HashMap<LatLng, Marker> mMarkers,
+                                                  GoogleMap mGoogleMap,
+                                                  String settingJson,
+                                                  Integer notesVersion) {
+        notesRepository.deserializeFromJson(settingJson, notesVersion);
+        if (mGoogleMap != null) {
+            addMarkersFromNotes(mMarkers, mGoogleMap, notesRepository);
+            // reset map view
+            mGoogleMap.setMapType(mGoogleMap.getMapType());
         }
     }
 
@@ -515,7 +532,7 @@ public class MapViewFragment
         mGoogleMap.setBuildingsEnabled(true);
         final int defaultMapType = mGoogleMap.getMapType();
 
-        this.addMarkersFromNotes();
+        //this.addMarkersFromNotes();
 
         mGoogleMap.setOnInfoWindowClickListener(
                 new GoogleMap.OnInfoWindowClickListener() {
@@ -584,7 +601,7 @@ public class MapViewFragment
                     this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
 
                     // add the note to the map
-                    addNoteMarkerToMap(noteInfo);
+                    addNoteMarkerToMap(mMarkers, mGoogleMap, noteInfo);
                     break;
 
                 case Constants.RESULT_DELETE_NOTE:
@@ -598,13 +615,13 @@ public class MapViewFragment
         }
     }
 
-    protected void addMarkersFromNotes() {
+    protected static void addMarkersFromNotes(HashMap<LatLng, Marker> mMarkers, GoogleMap mGoogleMap, NotesRepository mNotesRepository) {
         for (NoteInfo note: mNotesRepository.Notes.values()) {
-            addNoteMarkerToMap(note);
+            addNoteMarkerToMap(mMarkers, mGoogleMap, note);
         }
     }
 
-    protected void addNoteMarkerToMap(NoteInfo note) {
+    protected static void addNoteMarkerToMap(HashMap<LatLng, Marker> mMarkers, GoogleMap mGoogleMap, NoteInfo note) {
         if (mMarkers.containsKey(note.getLatLng()))
         {
             mMarkers.get(note.getLatLng()).remove();
