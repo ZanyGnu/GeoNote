@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Constants;
+import geonote.app.NotesManager;
 import geonote.app.Tasks.DownloadMapImageTask;
 import geonote.app.NoteInfo;
 import geonote.app.NotesRepository;
@@ -60,6 +62,7 @@ public class NoteListFragment
      */
     private NoteListArrayAdapter mAdapter;
     private NotesRepository mNotesRepository;
+    private NotesManager mNotesManager;
 
     // TODO: Rename and change types of parameters
     public static NoteListFragment newInstance() {
@@ -84,14 +87,23 @@ public class NoteListFragment
         }
 
         setUpNotesRepository();
-
-        mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
     }
 
     protected void setUpNotesRepository() {
-
         mNotesRepository = new NotesRepository(null);
-        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername(), null, null);
+        mNotesManager = new NotesManager();
+    }
+
+    private void loadNotes(final NotesRepository mNotesRepository) {
+
+        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
+            @Override
+            public void onNotesLoaded() {
+                mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
+            }
+        };
+
+        mNotesManager.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
     @Override
@@ -157,7 +169,6 @@ public class NoteListFragment
         mListener = null;
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
@@ -180,13 +191,13 @@ public class NoteListFragment
                     if (user != null) {
                         String profileName = user.getName();//user's profile name
 
-                        MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+                        loadNotes(mNotesRepository);
                     }
                 }
             });
             Request.executeBatchAsync(request);
         } else if (session.isClosed()) {
-            MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+            loadNotes(mNotesRepository);
         }
     }
 

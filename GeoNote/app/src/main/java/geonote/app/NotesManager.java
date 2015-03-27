@@ -16,11 +16,10 @@ import geonote.app.Tasks.SaveDropletTask;
 
 public class NotesManager {
 
-
     public OnNotesLoadedListener mOnNotesLoadedListener;
     private NotesRepository mNotesRepository;
 
-    public NotesManager(NotesRepository notesRepository)
+    public void setNotesManager(NotesRepository notesRepository)
     {
         this.mNotesRepository = notesRepository;
     }
@@ -29,8 +28,7 @@ public class NotesManager {
         void onNotesLoaded();
     }
 
-    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName,
-                                 final HashMap<LatLng, Marker> mMarkers, final GoogleMap mGoogleMap) {
+    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
 
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
