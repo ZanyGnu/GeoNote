@@ -99,7 +99,10 @@ public class NoteListFragment
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {
+                // reload the adapter for the data and refresh the UI
                 mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
+                mListView.setAdapter(mAdapter);
+                mListView.deferNotifyDataSetChanged();
             }
         };
 
