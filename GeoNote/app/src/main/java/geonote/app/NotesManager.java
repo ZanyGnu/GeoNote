@@ -30,6 +30,10 @@ public class NotesManager {
 
     public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
 
+        if (activity == null){
+            return;
+        }
+        
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
