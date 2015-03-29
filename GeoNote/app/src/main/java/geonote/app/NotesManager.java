@@ -17,12 +17,6 @@ import geonote.app.Tasks.SaveDropletTask;
 public class NotesManager {
 
     public OnNotesLoadedListener mOnNotesLoadedListener;
-    private NotesRepository mNotesRepository;
-
-    public void setNotesManager(NotesRepository notesRepository)
-    {
-        this.mNotesRepository = notesRepository;
-    }
 
     public static interface OnNotesLoadedListener {
         void onNotesLoaded();
@@ -33,7 +27,7 @@ public class NotesManager {
         if (activity == null){
             return;
         }
-        
+
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
         final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
@@ -71,7 +65,6 @@ public class NotesManager {
                         // the version in the local machine is more advanced. Load that instead
                         // and queue a work item to update the cloud version.
                         notesRepository.deserializeFromJson(settingJson, notesVersion);
-                        //populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
                         onRepositoryLoaded();
                         saveNotesToCloud(userName, settingJson, notesVersion);
                     }
@@ -84,7 +77,31 @@ public class NotesManager {
             notesRepository.deserializeFromJson(settingJson, notesVersion);
 
             onRepositoryLoaded();
-            //populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
+        }
+    }
+
+    public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
+
+        // increment the version of the notes every time we commit
+        notesRepository.NotesVersion++;
+
+        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        String notesJson = notesRepository.serializeToJson();
+        Integer notesVersion = notesRepository.NotesVersion;
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
+        editor.putInt(Constants.PREFS_NOTES_VERSION, notesVersion);
+
+        // Commit the edits!
+        editor.commit();
+
+        // If the user is logged in, lets also send these notes to the droplet server
+        // and associate it with the logged in user.
+        if (userName != null && userName != "") {
+
+            saveNotesToCloud(userName, notesJson, notesVersion);
         }
     }
 
@@ -104,5 +121,4 @@ public class NotesManager {
         new SaveDropletTask().execute(
                 new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
     }
-
 }

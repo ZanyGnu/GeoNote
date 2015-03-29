@@ -83,9 +83,6 @@ public class NoteListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-        }
-
         setUpNotesRepository();
     }
 
@@ -224,20 +221,7 @@ public class NoteListFragment
             }
 
             // lets remember the changes
-            MapViewFragment.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
+            mNotesManager.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
         }
     }
 

@@ -72,6 +72,7 @@ public class MapViewFragment
 
     protected GoogleMap mGoogleMap;
     protected NotesRepository mNotesRepository;
+    protected NotesManager mNotesManager;
     protected Geocoder mGeocoder;
     protected GoogleApiClient mGoogleApiClient;
     protected FloatingActionButton newNoteButton;
@@ -193,52 +194,19 @@ public class MapViewFragment
     }
 
     private void commitNotes() {
-        commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
+        mNotesManager.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
     }
 
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(this.mGeocoder);
     }
 
-    static public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
-
-        // increment the version of the notes every time we commit
-        notesRepository.NotesVersion++;
-
-        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
-
-        String notesJson = notesRepository.serializeToJson();
-        Integer notesVersion = notesRepository.NotesVersion;
-        SharedPreferences.Editor editor = settings.edit();
-
-        editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
-        editor.putInt(Constants.PREFS_NOTES_VERSION, notesVersion);
-
-        // Commit the edits!
-        editor.commit();
-
-        // If the user is logged in, lets also send these notes to the droplet server
-        // and associate it with the logged in user.
-        if (userName != null && userName != "") {
-
-            saveNotesToCloud(userName, notesJson, notesVersion);
-        }
-    }
-
-    private static void saveNotesToCloud(String userName, String notesJson, Integer notesVersion) {
-        ArrayList<Droplet> droplets = new ArrayList<>();
-
-        droplets.add(new Droplet("notes", notesJson));
-        droplets.add(new Droplet("notes-version", notesVersion.toString()));
-
-        new SaveDropletTask().execute(
-                new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
-    }
-
     public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName,
                                  final HashMap<LatLng, Marker> mMarkers, final GoogleMap mGoogleMap) {
 
-        NotesManager mNotesManager = new NotesManager();
+        // TODO: Load notes only if not already loaded
+        mNotesManager = new NotesManager();
+
 
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
