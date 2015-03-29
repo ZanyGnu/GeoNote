@@ -82,8 +82,44 @@ public class NotesManager {
         }
     }
 
-    public void commitNotes(Activity activity, NotesRepository notesRepository, String userName) {
+    public void commitNotes(final Activity activity, final NotesRepository notesRepository, final String userName) {
 
+        final int notesVersion = notesRepository.NotesVersion;
+
+        if (userName != null && userName != "") {
+
+            System.out.println("LoadNotes: Found logged in user");
+            ArrayList<Droplet> droplets = new ArrayList<>();
+
+            new GetDropletTask() {
+                @Override
+                protected void onPostExecute(Droplet result) {
+                    final Integer notesVersionOnServer = Integer.parseInt(result.Content);
+
+                    System.out.println("LoadNotes: notesVersionOnServer " + notesVersionOnServer);
+                    System.out.println("LoadNotes: notesVersionLocal " + notesVersion);
+
+                    if (notesVersionOnServer > notesVersion) {
+                        System.out.println("Not Saving Notes locally or into the cloud. The version in the cloud is higher than what we have locally!");
+                    } else {
+
+                        commitNotesLocally(activity, notesRepository);
+
+                        // If the user is logged in, lets also send these notes to the droplet server
+                        // and associate it with the logged in user.
+                        saveNotesToCloud(userName, notesRepository.serializeToJson(), notesVersion);
+                    }
+                }
+            };
+        }
+        else
+        {
+            commitNotesLocally(activity, notesRepository);
+        }
+    }
+
+    private void commitNotesLocally(Activity activity, NotesRepository notesRepository)
+    {
         // increment the version of the notes every time we commit
         notesRepository.NotesVersion++;
 
@@ -98,13 +134,6 @@ public class NotesManager {
 
         // Commit the edits!
         editor.commit();
-
-        // If the user is logged in, lets also send these notes to the droplet server
-        // and associate it with the logged in user.
-        if (userName != null && userName != "") {
-
-            saveNotesToCloud(userName, notesJson, notesVersion);
-        }
     }
 
     private void onRepositoryLoaded() {
