@@ -206,11 +206,12 @@ public class MapViewFragment
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {
-                if (mGoogleMap != null) {
-                    addMarkersFromNotes(mMarkers, mGoogleMap, mNotesRepository);
-                    // reset map view
-                    mGoogleMap.setMapType(mGoogleMap.getMapType());
-                }
+                addMarkersFromNotes(mMarkers, mGoogleMap, mNotesRepository);
+                // reset map view
+                mGoogleMap.setMapType(mGoogleMap.getMapType());
+
+                final TextView mapViewScreen = (TextView) mCurrentView.findViewById(R.id.mapViewScreen);
+                mapViewScreen.setVisibility(View.GONE);
             }
         };
     }

@@ -80,9 +80,6 @@ public class NoteListFragment
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(null);
         mNotesManager = new NotesManager();
-    }
-
-    private void loadNotes(final NotesRepository mNotesRepository) {
 
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
@@ -93,7 +90,9 @@ public class NoteListFragment
                 mListView.deferNotifyDataSetChanged();
             }
         };
+    }
 
+    private void loadNotes(NotesRepository mNotesRepository) {
         mNotesManager.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
