@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import geonote.app.Droplet.Model.Droplet;
@@ -74,6 +75,7 @@ public class NotesManager {
         else {
             // no user logged in, load the version from local disk.
             System.out.println("LoadNotes: Loading notes from local machine.");
+            //System.out.println("LoadNotes: called like so " + Arrays.toString(Thread.currentThread().getStackTrace()));
             notesRepository.deserializeFromJson(settingJson, notesVersion);
 
             onRepositoryLoaded();

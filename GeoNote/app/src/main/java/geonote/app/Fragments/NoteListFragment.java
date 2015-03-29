@@ -36,15 +36,6 @@ import geonote.app.NoteInfo;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
- */
 public class NoteListFragment
         extends     BaseFacebookHandlerFragment
         implements  AbsListView.OnItemClickListener {

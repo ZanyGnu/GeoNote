@@ -151,14 +151,16 @@ public class MapViewFragment
                     if (user != null) {
                         String profileName = user.getName();//user's profile name
                         txtUserDetails.setText("Logged in as " + user.getName());
-                        loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), mMarkers, mGoogleMap);
+                        System.out.println("onSessionStateChange: LoadNotes: session is open. username:"+user.getName());
+                        loadNotes(getActivity(), getLoggedInUsername());
                     }
                 }
             });
             Request.executeBatchAsync(request);
         } else if (session.isClosed()) {
             txtUserDetails.setText("");
-            loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), mMarkers, mGoogleMap);
+            System.out.println("onSessionStateChange: LoadNotes: session was closed.");
+            loadNotes(getActivity(), getLoggedInUsername());
         }
     }
 
@@ -199,27 +201,25 @@ public class MapViewFragment
 
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(this.mGeocoder);
-    }
-
-    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName,
-                                 final HashMap<LatLng, Marker> mMarkers, final GoogleMap mGoogleMap) {
-
-        // TODO: Load notes only if not already loaded
         mNotesManager = new NotesManager();
-
 
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {
                 if (mGoogleMap != null) {
-                    addMarkersFromNotes(mMarkers, mGoogleMap, notesRepository);
+                    addMarkersFromNotes(mMarkers, mGoogleMap, mNotesRepository);
                     // reset map view
                     mGoogleMap.setMapType(mGoogleMap.getMapType());
                 }
             }
         };
+    }
 
-        mNotesManager.loadNotes(activity, notesRepository, userName);
+    public void loadNotes(Activity activity, final String userName) {
+
+        // TODO: Load notes only if not already loaded
+
+        mNotesManager.loadNotes(activity, mNotesRepository, userName);
 
     }
 
