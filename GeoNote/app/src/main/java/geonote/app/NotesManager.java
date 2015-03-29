@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import geonote.app.Droplet.Model.Droplet;
@@ -16,21 +17,17 @@ import geonote.app.Tasks.SaveDropletTask;
 
 public class NotesManager {
 
-
     public OnNotesLoadedListener mOnNotesLoadedListener;
-    private NotesRepository mNotesRepository;
-
-    public NotesManager(NotesRepository notesRepository)
-    {
-        this.mNotesRepository = notesRepository;
-    }
 
     public static interface OnNotesLoadedListener {
         void onNotesLoaded();
     }
 
-    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName,
-                                 final HashMap<LatLng, Marker> mMarkers, final GoogleMap mGoogleMap) {
+    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
+
+        if (activity == null){
+            return;
+        }
 
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
 
@@ -69,7 +66,6 @@ public class NotesManager {
                         // the version in the local machine is more advanced. Load that instead
                         // and queue a work item to update the cloud version.
                         notesRepository.deserializeFromJson(settingJson, notesVersion);
-                        //populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
                         onRepositoryLoaded();
                         saveNotesToCloud(userName, settingJson, notesVersion);
                     }
@@ -79,11 +75,65 @@ public class NotesManager {
         else {
             // no user logged in, load the version from local disk.
             System.out.println("LoadNotes: Loading notes from local machine.");
+            //System.out.println("LoadNotes: called like so " + Arrays.toString(Thread.currentThread().getStackTrace()));
             notesRepository.deserializeFromJson(settingJson, notesVersion);
 
             onRepositoryLoaded();
-            //populateRepositoryAndMaps(notesRepository, mMarkers, mGoogleMap, settingJson, notesVersion);
         }
+    }
+
+    public void commitNotes(final Activity activity, final NotesRepository notesRepository, final String userName) {
+
+        final int notesVersion = notesRepository.NotesVersion;
+
+        if (userName != null && userName != "") {
+
+            System.out.println("LoadNotes: Found logged in user");
+            ArrayList<Droplet> droplets = new ArrayList<>();
+
+            new GetDropletTask() {
+                @Override
+                protected void onPostExecute(Droplet result) {
+                    final Integer notesVersionOnServer = Integer.parseInt(result.Content);
+
+                    System.out.println("LoadNotes: notesVersionOnServer " + notesVersionOnServer);
+                    System.out.println("LoadNotes: notesVersionLocal " + notesVersion);
+
+                    if (notesVersionOnServer > notesVersion) {
+                        System.out.println("Not Saving Notes locally or into the cloud. The version in the cloud is higher than what we have locally!");
+                    } else {
+
+                        commitNotesLocally(activity, notesRepository);
+
+                        // If the user is logged in, lets also send these notes to the droplet server
+                        // and associate it with the logged in user.
+                        saveNotesToCloud(userName, notesRepository.serializeToJson(), notesVersion);
+                    }
+                }
+            };
+        }
+        else
+        {
+            commitNotesLocally(activity, notesRepository);
+        }
+    }
+
+    private void commitNotesLocally(Activity activity, NotesRepository notesRepository)
+    {
+        // increment the version of the notes every time we commit
+        notesRepository.NotesVersion++;
+
+        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        String notesJson = notesRepository.serializeToJson();
+        Integer notesVersion = notesRepository.NotesVersion;
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString(Constants.PREFS_NOTES_VALUES_JSON, notesJson);
+        editor.putInt(Constants.PREFS_NOTES_VERSION, notesVersion);
+
+        // Commit the edits!
+        editor.commit();
     }
 
     private void onRepositoryLoaded() {
@@ -102,5 +152,4 @@ public class NotesManager {
         new SaveDropletTask().execute(
                 new SaveDropletTask.SaveDropletTaskParam(userName, droplets));
     }
-
 }

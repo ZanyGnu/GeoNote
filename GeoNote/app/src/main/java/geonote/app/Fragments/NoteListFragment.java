@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,20 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Constants;
+import geonote.app.NotesManager;
 import geonote.app.Tasks.DownloadMapImageTask;
 import geonote.app.NoteInfo;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Large screen devices (such as tablets) are supported by replacing the ListView
- * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
- * interface.
- */
 public class NoteListFragment
         extends     BaseFacebookHandlerFragment
         implements  AbsListView.OnItemClickListener {
@@ -60,6 +53,7 @@ public class NoteListFragment
      */
     private NoteListArrayAdapter mAdapter;
     private NotesRepository mNotesRepository;
+    private NotesManager mNotesManager;
 
     // TODO: Rename and change types of parameters
     public static NoteListFragment newInstance() {
@@ -80,18 +74,26 @@ public class NoteListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-        }
-
         setUpNotesRepository();
-
-        mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
     }
 
     protected void setUpNotesRepository() {
-
         mNotesRepository = new NotesRepository(null);
-        MapViewFragment.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername(), null, null);
+        mNotesManager = new NotesManager();
+
+        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
+            @Override
+            public void onNotesLoaded() {
+                // reload the adapter for the data and refresh the UI
+                mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
+                mListView.setAdapter(mAdapter);
+                mListView.deferNotifyDataSetChanged();
+            }
+        };
+    }
+
+    private void loadNotes(NotesRepository mNotesRepository) {
+        mNotesManager.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
     }
 
     @Override
@@ -157,7 +159,6 @@ public class NoteListFragment
         mListener = null;
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
@@ -180,13 +181,13 @@ public class NoteListFragment
                     if (user != null) {
                         String profileName = user.getName();//user's profile name
 
-                        MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+                        loadNotes(mNotesRepository);
                     }
                 }
             });
             Request.executeBatchAsync(request);
         } else if (session.isClosed()) {
-            MapViewFragment.loadNotes(getActivity(), mNotesRepository, getLoggedInUsername(), null, null);
+            loadNotes(mNotesRepository);
         }
     }
 
@@ -210,20 +211,7 @@ public class NoteListFragment
             }
 
             // lets remember the changes
-            MapViewFragment.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
+            mNotesManager.commitNotes(this.getActivity(), this.mNotesRepository, this.getLoggedInUsername());
         }
     }
 
