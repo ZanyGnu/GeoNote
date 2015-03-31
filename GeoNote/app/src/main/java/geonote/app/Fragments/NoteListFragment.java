@@ -75,25 +75,15 @@ public class NoteListFragment
         super.onCreate(savedInstanceState);
 
         setUpNotesRepository();
+
+        mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
     }
 
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(null);
         mNotesManager = new NotesManager();
 
-        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
-            @Override
-            public void onNotesLoaded() {
-                // reload the adapter for the data and refresh the UI
-                mAdapter = new NoteListArrayAdapter(getActivity(), mNotesRepository.getNotes());
-                mListView.setAdapter(mAdapter);
-                mListView.deferNotifyDataSetChanged();
-            }
-        };
-    }
-
-    private void loadNotes(NotesRepository mNotesRepository) {
-        mNotesManager.loadNotes(this.getActivity(), mNotesRepository, this.getLoggedInUsername());
+        mNotesManager.loadNotesFromLocalStore(this.getActivity(), mNotesRepository);
     }
 
     @Override
@@ -168,27 +158,6 @@ public class NoteListFragment
         }
 
         MapViewFragment.LaunchNoteViewActivity(mAdapter.getFilteredNotes().get(position), getActivity(), this);
-    }
-
-    @Override
-    protected void onSessionStateChange(Session session, SessionState state, Exception exception){
-
-        if (session != null && session.isOpened()) {
-            Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-                @Override
-                public void onCompleted(GraphUser user,
-                                        Response response) {
-                    if (user != null) {
-                        String profileName = user.getName();//user's profile name
-
-                        loadNotes(mNotesRepository);
-                    }
-                }
-            });
-            Request.executeBatchAsync(request);
-        } else if (session.isClosed()) {
-            loadNotes(mNotesRepository);
-        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -152,7 +152,6 @@ public class MapViewFragment
                         String profileName = user.getName();//user's profile name
                         txtUserDetails.setText("Logged in as " + user.getName());
                         System.out.println("onSessionStateChange: LoadNotes: session is open. username:"+user.getName());
-                        loadNotes(getActivity(), getLoggedInUsername());
                     }
                 }
             });
@@ -160,7 +159,6 @@ public class MapViewFragment
         } else if (session.isClosed()) {
             txtUserDetails.setText("");
             System.out.println("onSessionStateChange: LoadNotes: session was closed.");
-            loadNotes(getActivity(), getLoggedInUsername());
         }
     }
 
@@ -202,26 +200,7 @@ public class MapViewFragment
     protected void setUpNotesRepository() {
         mNotesRepository = new NotesRepository(this.mGeocoder);
         mNotesManager = new NotesManager();
-
-        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
-            @Override
-            public void onNotesLoaded() {
-                addMarkersFromNotes(mMarkers, mGoogleMap, mNotesRepository);
-                // reset map view
-                mGoogleMap.setMapType(mGoogleMap.getMapType());
-
-                final TextView mapViewScreen = (TextView) mCurrentView.findViewById(R.id.mapViewScreen);
-                mapViewScreen.setVisibility(View.GONE);
-            }
-        };
-    }
-
-    public void loadNotes(Activity activity, final String userName) {
-
-        // TODO: Load notes only if not already loaded
-
-        mNotesManager.loadNotes(activity, mNotesRepository, userName);
-
+        mNotesManager.loadNotesFromLocalStore(getActivity(), mNotesRepository);
     }
 
     /**
@@ -458,7 +437,7 @@ public class MapViewFragment
         mGoogleMap.setBuildingsEnabled(true);
         final int defaultMapType = mGoogleMap.getMapType();
 
-        //this.addMarkersFromNotes();
+        this.addMarkersFromNotes();
 
         mGoogleMap.setOnInfoWindowClickListener(
                 new GoogleMap.OnInfoWindowClickListener() {
@@ -541,7 +520,7 @@ public class MapViewFragment
         }
     }
 
-    protected static void addMarkersFromNotes(HashMap<LatLng, Marker> mMarkers, GoogleMap mGoogleMap, NotesRepository mNotesRepository) {
+    protected void addMarkersFromNotes() {
         for (NoteInfo note: mNotesRepository.Notes.values()) {
             addNoteMarkerToMap(mMarkers, mGoogleMap, note);
         }

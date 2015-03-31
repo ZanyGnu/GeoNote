@@ -32,17 +32,4 @@
             android:layout_marginBottom="40dp"
             android:layout_marginLeft="20dp" />
 
-    <TextView
-        android:id="@+id/mapViewScreen"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:gravity="center"
-        android:backgroundTint="@color/com_facebook_usersettingsfragment_not_connected_text_color"
-        android:text="Loading Notes and Map... Please Standby"
-        android:textColor="@android:color/holo_green_dark"
-        android:textSize="16dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp" />
-
     </FrameLayout>
