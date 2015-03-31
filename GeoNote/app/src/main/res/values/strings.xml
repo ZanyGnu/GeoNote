@@ -18,5 +18,6 @@
     <string name="geo_fence_radius">geo_fence_radius</string>
     <string name="title_activity_login_activity_fb">LoginActivityFB</string>
     <string name="facebook_app_id">1548745582075227</string>
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
 
 </resources>

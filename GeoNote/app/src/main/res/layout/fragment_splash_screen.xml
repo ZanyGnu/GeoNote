@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="geonote.app.Activity.SplashScreenActivity$PlaceholderFragment">
+    >
+
+    <ImageView android:id="@+id/splashscreen"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/location_notes"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/splashScreenText"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:backgroundTint="@color/com_facebook_usersettingsfragment_not_connected_text_color"
+        android:text="Loading Notes and Map... Please Standby"
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="16dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp" />
+</LinearLayout>

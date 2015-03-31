@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="geonote.app"
-    android:versionCode="308"
-    android:versionName="0.0.296" >
+    android:versionCode="320"
+    android:versionName="0.0.308" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -86,14 +86,6 @@
             android:icon="@drawable/location_notes"
             android:label="@string/title_activity_main"
             android:logo="@drawable/location_notes" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -109,6 +101,18 @@
         <activity
             android:name=".Activity.LoginActivityFB"
             android:label="@string/title_activity_login_activity_fb" >
+        </activity>
+        <activity
+            android:name=".Activity.SplashScreenActivity"
+            android:icon="@drawable/location_notes"
+            android:label="@string/title_activity_main"
+            android:logo="@drawable/location_notes"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
         </activity>
     </application>
 
