@@ -23,7 +23,24 @@ public class NotesManager {
         void onNotesLoaded();
     }
 
-    public void loadNotes(Activity activity, final NotesRepository notesRepository, final String userName) {
+    public void loadNotesFromLocalStore(Activity activity, final NotesRepository notesRepository) {
+
+        if (activity == null) {
+            return;
+        }
+
+        SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
+        final Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);
+
+        // no user logged in, load the version from local disk.
+        System.out.println("LoadNotes: Loading notes from local machine.");
+        //System.out.println("LoadNotes: called like so " + Arrays.toString(Thread.currentThread().getStackTrace()));
+        notesRepository.deserializeFromJson(settingJson, notesVersion);
+    }
+
+    public void loadNotes(final Activity activity, final NotesRepository notesRepository, final String userName) {
 
         if (activity == null){
             return;
@@ -57,6 +74,10 @@ public class NotesManager {
                             protected void onPostExecute(Droplet result) {
                                 System.out.println("LoadNotes: got notes from the cloud, loading repository");
                                 notesRepository.deserializeFromJson(result.Content, notesVersionOnServer);
+
+                                // also bring the notes from the cloud to the local machine.
+                                // the rest of the views can use this data.
+                                commitNotesLocally(activity, notesRepository);
 
                                 onRepositoryLoaded();
                             }
