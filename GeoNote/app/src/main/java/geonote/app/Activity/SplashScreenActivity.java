@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import geonote.app.Constants;
 import geonote.app.Fragments.BaseFacebookHandlerFragment;
+import geonote.app.Fragments.SplashScreenFragment;
 import geonote.app.NoteInfo;
 import geonote.app.NotesManager;
 import geonote.app.NotesRepository;
@@ -67,73 +68,5 @@ public class SplashScreenActivity extends FragmentActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public static class SplashScreenFragment extends BaseFacebookHandlerFragment {
-
-        View mCurrentView = null;
-        NotesManager mNotesManager = null;
-        NotesRepository mNotesRepository = null;
-
-        public SplashScreenFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            mCurrentView = inflater.inflate(R.layout.fragment_splash_screen, container, false);
-
-            mNotesManager = new NotesManager();
-            mNotesRepository = new NotesRepository(new Geocoder(getActivity().getBaseContext(), Locale.getDefault()));
-
-            mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
-                @Override
-                public void onNotesLoaded() {
-                    launchMainActivity();
-                }
-            };
-
-            return mCurrentView;
-        }
-
-        public void loadNotes(Activity activity, final String userName) {
-
-            // TODO: Load notes only if not already loaded
-
-            mNotesManager.loadNotes(activity, mNotesRepository, userName);
-        }
-
-        protected void onSessionStateChange(Session session, SessionState state, Exception exception){
-            if (session != null && session.isOpened()) {
-                Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
-                    @Override
-                    public void onCompleted(GraphUser user,
-                                            Response response) {
-                        if (user != null) {
-                            System.out.println("onSessionStateChange: LoadNotes: session is open. username:"+user.getName());
-                            loadNotes(getActivity(), getLoggedInUsername());
-                        }
-                    }
-                });
-                Request.executeBatchAsync(request);
-            } else if (session.isClosed()) {
-                System.out.println("onSessionStateChange: LoadNotes: session was closed.");
-                loadNotes(getActivity(), getLoggedInUsername());
-            }
-        }
-
-        private void launchMainActivity() {
-            LaunchMainActivity(this.getActivity(), this);
-            SplashScreenFragment.this.getActivity().finish();
-        }
-
-        public static void LaunchMainActivity(Activity currentActivity, Fragment currentFragment) {
-            Intent myIntent = new Intent(currentActivity, MainActivity.class);
-            if (currentFragment != null) {
-                currentFragment.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
-            } else {
-                currentActivity.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
-            }
-        }
     }
 }
