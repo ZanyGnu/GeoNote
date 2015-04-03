@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
+import com.google.api.client.util.DateTime;
 
 import java.util.Locale;
 
@@ -30,8 +33,11 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
     NotesManager mNotesManager = null;
     NotesRepository mNotesRepository = null;
     TextView mSplashScreenTextView = null;
+    Time startupTime = new Time();
+    int splashScreenShowTimeMillis = 5*1000;
 
     public SplashScreenFragment() {
+        startupTime.setToNow();
     }
 
     @Override
@@ -86,8 +92,24 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
 
     private void launchMainActivity() {
         mSplashScreenTextView.append("\nLaunching map view.");
-        LaunchMainActivity(this.getActivity(), this);
-        SplashScreenFragment.this.getActivity().finish();
+
+        final Fragment currentFragment = this;
+        final Handler timerHandler = new Handler();
+        Runnable timerRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                LaunchMainActivity(getActivity(), currentFragment);
+                SplashScreenFragment.this.getActivity().finish();
+            }
+        };
+
+        Time now = new Time();
+        now.setToNow();
+        timerHandler.postDelayed(timerRunnable,
+                  now.toMillis(false)
+                - startupTime.toMillis(false)
+                - splashScreenShowTimeMillis);
     }
 
     public static void LaunchMainActivity(Activity currentActivity, Fragment currentFragment) {
