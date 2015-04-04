@@ -17,7 +17,6 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
-import com.google.api.client.util.DateTime;
 
 import java.util.Locale;
 
@@ -34,7 +33,7 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
     NotesRepository mNotesRepository = null;
     TextView mSplashScreenTextView = null;
     Time startupTime = new Time();
-    int splashScreenShowTimeMillis = 5*1000;
+    int splashScreenShowTimeMillis = 3*1000;
 
     public SplashScreenFragment() {
         startupTime.setToNow();
