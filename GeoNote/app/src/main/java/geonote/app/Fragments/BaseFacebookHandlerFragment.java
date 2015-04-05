@@ -3,12 +3,6 @@ package geonote.app.Fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -16,9 +10,6 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
-import com.facebook.widget.LoginButton;
-
-import geonote.app.R;
 
 public abstract class BaseFacebookHandlerFragment extends Fragment {
 

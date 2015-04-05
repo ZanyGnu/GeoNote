@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -44,7 +43,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shamanland.fab.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -52,15 +50,12 @@ import java.util.Locale;
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
 import geonote.app.GeoFenceWatcherService;
-import geonote.app.Droplet.Model.Droplet;
 import geonote.app.NoteInfo;
 import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesManager;
 import geonote.app.NotesRepository;
 import geonote.app.R;
 import geonote.app.Settings;
-import geonote.app.Tasks.GetDropletTask;
-import geonote.app.Tasks.SaveDropletTask;
 
 public class MapViewFragment
         extends BaseFacebookHandlerFragment
@@ -149,7 +144,6 @@ public class MapViewFragment
                 public void onCompleted(GraphUser user,
                                         Response response) {
                     if (user != null) {
-                        String profileName = user.getName();//user's profile name
                         txtUserDetails.setText("Logged in as " + user.getName());
                         System.out.println("onSessionStateChange: LoadNotes: session is open. username:"+user.getName());
                     }
