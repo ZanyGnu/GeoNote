@@ -49,6 +49,12 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
         mNotesManager = new NotesManager();
         mNotesRepository = new NotesRepository(new Geocoder(getActivity().getBaseContext(), Locale.getDefault()));
 
+        try {
+            NotesRepository.SetInstance(mNotesRepository);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {

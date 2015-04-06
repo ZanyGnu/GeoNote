@@ -71,10 +71,18 @@ public class NoteListFragment
     }
 
     protected void setUpNotesRepository() {
-        mNotesRepository = new NotesRepository(null);
+        mNotesRepository = NotesRepository.Instance;
         mNotesManager = new NotesManager();
 
         mNotesManager.loadNotesFromLocalStore(this.getActivity(), mNotesRepository);
+
+        mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
+            @Override
+            public void OnNotesModified() {
+                mAdapter.notifyDataSetChanged();
+            }
+        };
+
     }
 
     @Override
@@ -162,12 +170,14 @@ public class NoteListFragment
 
                     // replace existing note with new note.
                     this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
+                    this.mNotesRepository.NotifyNotesModified();
 
                     break;
 
                 case Constants.RESULT_DELETE_NOTE:
                     noteInfo = data.getParcelableExtra("result");
                     this.mNotesRepository.Notes.remove(noteInfo.getLatLng());
+                    this.mNotesRepository.NotifyNotesModified();
             }
 
             // lets remember the changes

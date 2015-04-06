@@ -192,7 +192,7 @@ public class MapViewFragment
     }
 
     protected void setUpNotesRepository() {
-        mNotesRepository = new NotesRepository(this.mGeocoder);
+        mNotesRepository = NotesRepository.Instance;
         mNotesManager = new NotesManager();
         mNotesManager.loadNotesFromLocalStore(getActivity(), mNotesRepository);
     }
@@ -367,6 +367,7 @@ public class MapViewFragment
                     .LatLng(latLng)
                     .Address(address);
             mNotesRepository.Notes.put(latLng, note);
+            mNotesRepository.NotifyNotesModified();
         }
 
         note = mNotesRepository.Notes.get(latLng);
@@ -498,6 +499,7 @@ public class MapViewFragment
 
                     // replace existing note with new note.
                     this.mNotesRepository.Notes.put(noteInfo.getLatLng(), noteInfo);
+                    this.mNotesRepository.NotifyNotesModified();
 
                     // add the note to the map
                     addNoteMarkerToMap(mMarkers, mGoogleMap, noteInfo);
@@ -506,6 +508,7 @@ public class MapViewFragment
                 case Constants.RESULT_DELETE_NOTE:
                     noteInfo = data.getParcelableExtra("result");
                     this.mNotesRepository.Notes.remove(noteInfo.getLatLng());
+                    this.mNotesRepository.NotifyNotesModified();
                     removeNoteMarkerFromMap(noteInfo);
             }
 
