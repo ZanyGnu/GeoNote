@@ -131,7 +131,7 @@ public class NotesManager {
                         saveNotesToCloud(userName, notesRepository.serializeToJson(), notesVersion);
                     }
                 }
-            };
+            }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes-version"));
         }
         else
         {
