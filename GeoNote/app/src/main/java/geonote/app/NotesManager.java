@@ -132,9 +132,7 @@ public class NotesManager {
                     }
                 }
             }.execute(new GetDropletTask.GetDropletTaskParam(userName, "notes-version"));
-        }
-        else
-        {
+        } else {
             commitNotesLocally(activity, notesRepository);
         }
     }

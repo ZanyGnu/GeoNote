@@ -79,6 +79,8 @@ public class NoteListFragment
         mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
             @Override
             public void OnNotesModified() {
+                mAdapter.clear();
+                mAdapter.addAll(mNotesRepository.getNotes());
                 mAdapter.notifyDataSetChanged();
             }
         };
