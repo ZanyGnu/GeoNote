@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="geonote.app"
-    android:versionCode="336"
-    android:versionName="0.0.324" >
+    android:versionCode="337"
+    android:versionName="0.0.325" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

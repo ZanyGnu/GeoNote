@@ -193,8 +193,18 @@ public class MapViewFragment
 
     protected void setUpNotesRepository() {
         mNotesRepository = NotesRepository.Instance;
+
         mNotesManager = new NotesManager();
         mNotesManager.loadNotesFromLocalStore(getActivity(), mNotesRepository);
+
+        mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
+            @Override
+            public void OnNotesModified() {
+                // every time the note list is modified, re-add the markers.
+                removeNoteMarkersFromMap();
+                addMarkersFromNotes();
+            }
+        };
     }
 
     /**
@@ -523,6 +533,14 @@ public class MapViewFragment
         }
     }
 
+    protected void removeNoteMarkersFromMap() {
+        for (Marker marker: mMarkers.values()) {
+            marker.remove();
+        }
+
+        mMarkers.clear();
+    }
+
     protected static void addNoteMarkerToMap(HashMap<LatLng, Marker> mMarkers, GoogleMap mGoogleMap, NoteInfo note) {
         if (mMarkers.containsKey(note.getLatLng()))
         {
@@ -547,6 +565,7 @@ public class MapViewFragment
             // the marker might not exist if we are trying to delete a note that
             // has not yet been created and saved
             marker.remove();
+            mMarkers.remove(marker);
         }
     }
 
