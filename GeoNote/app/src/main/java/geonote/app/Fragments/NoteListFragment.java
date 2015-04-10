@@ -74,7 +74,7 @@ public class NoteListFragment
         mNotesRepository = NotesRepository.Instance;
         mNotesManager = new NotesManager();
 
-        mNotesManager.loadNotesFromLocalStore(this.getActivity(), mNotesRepository);
+        NotesManager.loadNotesFromLocalStore(this.getActivity(), mNotesRepository);
 
         mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
             @Override

@@ -23,13 +23,18 @@ public class NotesManager {
         void onNotesLoaded();
     }
 
-    public void loadNotesFromLocalStore(Activity activity, final NotesRepository notesRepository) {
+    public static void loadNotesFromLocalStore(Activity activity, final NotesRepository notesRepository) {
 
         if (activity == null) {
             return;
         }
 
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        loadNotesFromLocalStore(settings, notesRepository);
+    }
+
+    public static void loadNotesFromLocalStore(SharedPreferences settings, final NotesRepository notesRepository) {
 
         final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
         final Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);

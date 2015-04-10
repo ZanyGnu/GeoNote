@@ -88,7 +88,7 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
                 }
             });
             Request.executeBatchAsync(request);
-        } else if (session.isClosed()) {
+        } else {
             mSplashScreenTextView.append("\nUser not already logged in.");
             System.out.println("onSessionStateChange: LoadNotes: session was closed.");
             loadNotes(getActivity(), getLoggedInUsername());

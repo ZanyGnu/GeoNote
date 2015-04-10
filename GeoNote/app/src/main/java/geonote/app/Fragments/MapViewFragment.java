@@ -195,7 +195,7 @@ public class MapViewFragment
         mNotesRepository = NotesRepository.Instance;
 
         mNotesManager = new NotesManager();
-        mNotesManager.loadNotesFromLocalStore(getActivity(), mNotesRepository);
+        NotesManager.loadNotesFromLocalStore(getActivity(), mNotesRepository);
 
         mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
             @Override
