@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -19,11 +20,8 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashSet;
 
@@ -49,6 +47,10 @@ public class LocationListenerService extends Service implements
     private Settings mSettings;
     protected NotesRepository mNotesRepository;
     protected NoteInfo mCurrentShownNotificationNote = null;
+    boolean mTrackingStarted = false;
+
+
+    private Handler handler;
 
     @Override
     public void onCreate() {
@@ -70,6 +72,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        handler = new Handler();
 
         createLocationRequest();
 
@@ -87,10 +90,12 @@ public class LocationListenerService extends Service implements
     }
 
     protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (mLocationRequest == null) {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(10000);
+            mLocationRequest.setFastestInterval(5000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
     }
 
     // region Overrides for GoogleApiClient.ConnectionCallbacks
@@ -172,6 +177,14 @@ public class LocationListenerService extends Service implements
         if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= mSettings.getGeoFenceRadius()) {
             mNotificationManager.cancel(Constants.CURRENT_NOTIFICATION_ID);
         }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Location updated", Toast.LENGTH_SHORT).show();
+            }
+        });
+        Toast.makeText(getApplicationContext(), "Location updated 2", Toast.LENGTH_LONG).show();
     }
 
     protected void sendNotification(String notificationContents, NoteInfo noteInfo) {
