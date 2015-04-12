@@ -3,13 +3,7 @@ package geonote.app;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 import geonote.app.Droplet.Model.Droplet;
 import geonote.app.Tasks.GetDropletTask;

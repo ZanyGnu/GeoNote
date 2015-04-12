@@ -36,7 +36,9 @@ import geonote.app.Settings;
 public class LocationListenerService extends Service implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "LocationListenerService";
     protected LocationRequest mLocationRequest;
@@ -49,12 +51,12 @@ public class LocationListenerService extends Service implements
     protected NoteInfo mCurrentShownNotificationNote = null;
     boolean mTrackingStarted = false;
 
-
     private Handler handler;
 
     @Override
     public void onCreate() {
 
+        Log.d(TAG, "onCreate");
         this.mSettings = new Settings(this.getBaseContext());
 
         this.mNotificationManager =
@@ -68,20 +70,24 @@ public class LocationListenerService extends Service implements
             NotesManager.loadNotesFromLocalStore(settings, mNotesRepository);
         }
 
+        createLocationRequest();
+
+        buildGoogleApiClient();
+
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
         handler = new Handler();
-
-        createLocationRequest();
 
         return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
@@ -90,7 +96,19 @@ public class LocationListenerService extends Service implements
         return null;
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        Log.d(TAG, "buildGoogleApiClient");
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        mGoogleApiClient.connect();
+    }
+
     protected void createLocationRequest() {
+        Log.d(TAG, "createLocationRequest");
         if (mLocationRequest == null) {
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(10000);
@@ -112,12 +130,18 @@ public class LocationListenerService extends Service implements
     }
 
     @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended");
+    }
+
+    @Override
     public void onDisconnected() {
-        Log.d(TAG, "onConnected");
+        Log.d(TAG, "onDisconnected");
         stopSelf();
     }
 
     protected void startLocationUpdates() {
+        Log.d(TAG, "startLocationUpdates");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient,
                 mLocationRequest,
@@ -140,6 +164,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.e(TAG, "onLocationChanged");
         this.mLastLocation = location;
 
         if (!mSettings.isNotificationsEnabled()) {
