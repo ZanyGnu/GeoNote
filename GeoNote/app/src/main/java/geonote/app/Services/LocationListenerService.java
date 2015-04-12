@@ -64,6 +64,7 @@ public class LocationListenerService extends Service implements
 
         if (mNotesRepository == null) {
             SharedPreferences settings = this.getSharedPreferences(Constants.PREFS_NOTES, 0);
+            mNotesRepository = new NotesRepository(null);
             NotesManager.loadNotesFromLocalStore(settings, mNotesRepository);
         }
 
