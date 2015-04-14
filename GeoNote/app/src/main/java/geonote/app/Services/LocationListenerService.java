@@ -51,8 +51,6 @@ public class LocationListenerService extends Service implements
     protected NoteInfo mCurrentShownNotificationNote = null;
     boolean mTrackingStarted = false;
 
-    private Handler handler;
-
     @Override
     public void onCreate() {
 
@@ -80,7 +78,6 @@ public class LocationListenerService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        handler = new Handler();
 
         return START_NOT_STICKY;
     }
@@ -203,17 +200,11 @@ public class LocationListenerService extends Service implements
         if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= mSettings.getGeoFenceRadius()) {
             mNotificationManager.cancel(Constants.CURRENT_NOTIFICATION_ID);
         }
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Location updated", Toast.LENGTH_SHORT).show();
-            }
-        });
-        Toast.makeText(getApplicationContext(), "Location updated 2", Toast.LENGTH_LONG).show();
     }
 
     protected void sendNotification(String notificationContents, NoteInfo noteInfo) {
+        Log.e(TAG, "sendNotification :" + "for note " + noteInfo.toString());
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getBaseContext())
                         .setSmallIcon(R.drawable.notespin)
