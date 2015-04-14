@@ -108,9 +108,9 @@ public class LocationListenerService extends Service implements
         Log.d(TAG, "createLocationRequest");
         if (mLocationRequest == null) {
             mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(10000);
-            mLocationRequest.setFastestInterval(5000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequest.setInterval(6 * 60 * 1000); // 1 hour
+            mLocationRequest.setFastestInterval(60 * 1000); // 1 minute
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         }
     }
 

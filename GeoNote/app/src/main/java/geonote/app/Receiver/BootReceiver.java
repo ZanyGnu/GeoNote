@@ -20,7 +20,7 @@ public class BootReceiver extends BroadcastReceiver {
 
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime(),
-                10 *1000,
+                60 * 60 * 1000, // wake up every hour
                 pendingIntent);
     }
 }
