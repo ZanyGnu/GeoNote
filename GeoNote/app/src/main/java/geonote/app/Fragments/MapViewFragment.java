@@ -58,10 +58,7 @@ import geonote.app.R;
 import geonote.app.Settings;
 
 public class MapViewFragment
-        extends BaseFacebookHandlerFragment
-        implements  GoogleApiClient.ConnectionCallbacks,
-                    GoogleApiClient.OnConnectionFailedListener,
-                    LocationListener {
+        extends BaseFacebookHandlerFragment {
 
     private OnFragmentInteractionListener mListener;
 
@@ -69,16 +66,9 @@ public class MapViewFragment
     protected NotesRepository mNotesRepository;
     protected NotesManager mNotesManager;
     protected Geocoder mGeocoder;
-    protected GoogleApiClient mGoogleApiClient;
     protected FloatingActionButton newNoteButton;
-    protected Location mLastLocation = null;
-    protected LocationRequest mLocationRequest;
-    protected HashSet<NoteInfo> mSentNotifications = new HashSet<>();
     protected HashMap<LatLng, Marker> mMarkers = new HashMap<>();
     protected NotificationManager mNotificationManager = null;
-    protected NoteInfo mCurrentShownNotificationNote = null;
-    protected GeoFenceWatcherService mBoundService;
-    protected boolean mIsBound;
     protected boolean mGeoIntentReceived;
 
     protected Bundle mSavedInstanceState;
@@ -123,10 +113,6 @@ public class MapViewFragment
         mCurrentView = inflater.inflate(R.layout.fragment_map_view, container, false);
 
         setupNewNoteButton();
-
-        buildGoogleApiClient();
-
-        createLocationRequest();
 
         setUpNotesRepository();
 
@@ -222,136 +208,10 @@ public class MapViewFragment
         public void onFragmentInteraction(Uri uri);
     }
 
-    // region Overrides for GoogleApiClient.ConnectionCallbacks
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-
-        startLocationUpdates();
-
-        if (mGeoIntentReceived != true && mLastLocation != null && mGoogleMap != null) {
-            moveMapCameraToLocation(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient,
-                mLocationRequest,
-                this);
-    }
-
     protected void moveMapCameraToLocation(LatLng latLng) {
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
-
-
-    // endregion
-
-    // region Overrides for GoogleApiClient.OnConnectionFailedListener
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Toast.makeText(getActivity().getBaseContext(),
-                "Connection failed",
-                Toast.LENGTH_LONG).show();
-    }
-
-    // endregion
-
-    // region Overrides for LocationListener
-
-    @Override
-    public void onLocationChanged(Location location) {
-        this.mLastLocation = location;
-
-        if (!mSettings.isNotificationsEnabled()) {
-            return ;
-        }
-
-        // check if there is a note in the nearby location.
-        float closestMatch = Integer.MAX_VALUE;
-        NoteInfo noteInfoToNotifyOn = null;
-
-        for(NoteInfo noteInfo: this.mNotesRepository.Notes.values())
-        {
-            // if we have a note within about GEO_FENCE_RADIUS meters from where we are,
-            // and the note requested for an alert, send a notification.
-            float distanceFromNote = noteInfo.getDistanceFrom(mLastLocation);
-            if (distanceFromNote < mSettings.getGeoFenceRadius()) {
-                if (closestMatch > distanceFromNote && noteInfo.getEnableRaisingEvents())
-                {
-                    closestMatch = distanceFromNote;
-                    noteInfoToNotifyOn = noteInfo;
-                }
-            }
-        }
-
-        if (noteInfoToNotifyOn != null) {
-            // send the notification from the closest note only if we havent already sent it.
-            // TODO - do we need to remember this for a time period too?
-            if (!mSentNotifications.contains(noteInfoToNotifyOn)) {
-                sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
-                mSentNotifications.add(noteInfoToNotifyOn);
-            }
-        }
-
-        // if the posted notification is outside of GEO_FENCE_RADIUS,
-        // cancel the sent notification.
-        if (mCurrentShownNotificationNote!=null && mCurrentShownNotificationNote.getDistanceFrom(mLastLocation) >= mSettings.getGeoFenceRadius()) {
-            mNotificationManager.cancel(Constants.CURRENT_NOTIFICATION_ID);
-        }
-    }
-
-    protected void sendNotification(String notificationContents, NoteInfo noteInfo) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getActivity())
-                        .setSmallIcon(R.drawable.notespin)
-                        .setContentTitle("Note available at nearby location")
-                        .setAutoCancel(true)
-                        .setContentText(notificationContents);
-
-        // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(getActivity(), NoteViewActivity.class);
-        resultIntent.putExtra("noteInfoExtra", noteInfo);
-
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
-
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(NoteViewActivity.class);
-
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        Notification notification = mBuilder.build();
-        notification.defaults |= Notification.DEFAULT_SOUND;
-        notification.defaults |= Notification.DEFAULT_VIBRATE;
-
-        mNotificationManager.notify(Constants.CURRENT_NOTIFICATION_ID, notification);
-        mCurrentShownNotificationNote = noteInfo;
-    }
-
-    // endregion
-
 
     protected void setupNewNoteButton() {
         newNoteButton = (FloatingActionButton) mCurrentView.findViewById(R.id.fabButton);
@@ -383,23 +243,6 @@ public class MapViewFragment
         note = mNotesRepository.Notes.get(latLng);
 
         LaunchNoteViewActivity(note, this.getActivity(), this);
-    }
-
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        mGoogleApiClient.connect();
-    }
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
