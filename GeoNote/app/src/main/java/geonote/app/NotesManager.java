@@ -3,13 +3,7 @@ package geonote.app;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 import geonote.app.Droplet.Model.Droplet;
 import geonote.app.Tasks.GetDropletTask;
@@ -23,13 +17,18 @@ public class NotesManager {
         void onNotesLoaded();
     }
 
-    public void loadNotesFromLocalStore(Activity activity, final NotesRepository notesRepository) {
+    public static void loadNotesFromLocalStore(Activity activity, final NotesRepository notesRepository) {
 
         if (activity == null) {
             return;
         }
 
         SharedPreferences settings = activity.getSharedPreferences(Constants.PREFS_NOTES, 0);
+
+        loadNotesFromLocalStore(settings, notesRepository);
+    }
+
+    public static void loadNotesFromLocalStore(SharedPreferences settings, final NotesRepository notesRepository) {
 
         final String settingJson = settings.getString(Constants.PREFS_NOTES_VALUES_JSON, "");
         final Integer notesVersion = settings.getInt(Constants.PREFS_NOTES_VERSION, 0);

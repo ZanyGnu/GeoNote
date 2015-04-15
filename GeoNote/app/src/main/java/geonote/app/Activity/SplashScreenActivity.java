@@ -1,13 +1,18 @@
 package geonote.app.Activity;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Geocoder;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +37,7 @@ import geonote.app.NoteInfo;
 import geonote.app.NotesManager;
 import geonote.app.NotesRepository;
 import geonote.app.R;
+import geonote.app.Receiver.AlarmReceiver;
 
 public class SplashScreenActivity extends FragmentActivity {
 
@@ -46,6 +52,8 @@ public class SplashScreenActivity extends FragmentActivity {
                     .add(R.id.container, new SplashScreenFragment())
                     .commit();
         }
+
+        startAlarmManager();
     }
 
     @Override
@@ -68,5 +76,19 @@ public class SplashScreenActivity extends FragmentActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startAlarmManager() {
+        Log.d("SplashScreenActivity", "startAlarmManager");
+
+        Context context = getBaseContext();
+        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent tIntent = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, tIntent, 0);
+
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime(),
+                60 * 60 * 1000, // wake up every hour
+                pendingIntent);
     }
 }
