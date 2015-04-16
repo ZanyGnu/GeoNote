@@ -112,9 +112,9 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
         Time now = new Time();
         now.setToNow();
         timerHandler.postDelayed(timerRunnable,
-                  now.toMillis(false)
-                - startupTime.toMillis(false)
-                - splashScreenShowTimeMillis);
+                    startupTime.toMillis(false)
+                    + splashScreenShowTimeMillis
+                    - now.toMillis(false));
     }
 
     public static void LaunchMainActivity(Activity currentActivity, Fragment currentFragment) {

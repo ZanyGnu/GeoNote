@@ -34,8 +34,6 @@ import geonote.app.R;
 import geonote.app.Settings;
 
 public class LocationListenerService extends Service implements
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -129,12 +127,6 @@ public class LocationListenerService extends Service implements
     @Override
     public void onConnectionSuspended(int i) {
         Log.d(TAG, "onConnectionSuspended");
-    }
-
-    @Override
-    public void onDisconnected() {
-        Log.d(TAG, "onDisconnected");
-        stopSelf();
     }
 
     protected void startLocationUpdates() {
