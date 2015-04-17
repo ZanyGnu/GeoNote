@@ -2,6 +2,8 @@ package geonote.app.Fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,7 +64,14 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
                 launchMainActivity();
             }
         };
-        mSplashScreenTextView.append("\nLogging into facebook.");
+        try{
+            ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.facebook.android", 0);
+            mSplashScreenTextView.append("\nLogging into facebook.");
+        } catch( PackageManager.NameNotFoundException e ){
+            mSplashScreenTextView.append("\nNo facebook app found.");
+            mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
+        }
+
         return mCurrentView;
     }
 
