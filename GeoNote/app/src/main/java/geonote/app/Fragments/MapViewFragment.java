@@ -5,17 +5,21 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +59,7 @@ import geonote.app.NoteInfoWindowAdapter;
 import geonote.app.NotesManager;
 import geonote.app.NotesRepository;
 import geonote.app.R;
+import geonote.app.Services.LocationListenerService;
 import geonote.app.Settings;
 
 public class MapViewFragment
@@ -76,6 +81,12 @@ public class MapViewFragment
     private Fragment mFragment;
     private Settings mSettings;
 
+    private ServiceConnection mConnection;
+    private LocationListenerService mService;
+    private boolean mBound = false;
+
+    private boolean mapZoomedIn = false;
+
     /**
      * Factory method to create a new instance of this fragment.
      * @return A new instance of fragment MapViewFragment.
@@ -96,6 +107,8 @@ public class MapViewFragment
 
         super.onCreate(savedInstanceState);
 
+        setupServiceConnection();
+
         this.mSettings = new Settings(this.getActivity());
 
         this.mSavedInstanceState = savedInstanceState;
@@ -104,6 +117,35 @@ public class MapViewFragment
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
         this.mGeocoder = new Geocoder(getActivity().getBaseContext(), Locale.getDefault());
+    }
+
+    private void setupServiceConnection() {
+        /** Defines callbacks for service binding, passed to bindService() */
+        this.mConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className,
+                                           IBinder service) {
+                // We've bound to LocalService, cast the IBinder and get LocalService instance
+                LocationListenerService.LocationListenerBinder binder = (LocationListenerService.LocationListenerBinder) service;
+                mService = binder.getService();
+                mBound = true;
+                if (!mapZoomedIn)
+                {
+                    Location lastLocation = mService.getLastLocation();
+
+                    if (lastLocation != null && mGoogleMap != null) {
+                        Log.d("SetupMap", "Found last location as " + lastLocation.toString());
+                        moveMapCameraToLocation(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+                    }
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                mBound = false;
+            }
+        };
     }
 
     @Override
@@ -163,6 +205,8 @@ public class MapViewFragment
     public void onStart() {
         super.onStart();
 
+        bindToLocationListener();
+
         setUpMapIfNeeded();
     }
 
@@ -170,7 +214,22 @@ public class MapViewFragment
     public void onStop() {
         super.onStop();
 
+        unBindFromLocationListener();
+
         commitNotes();
+    }
+
+    protected void bindToLocationListener() {
+        Intent intent = new Intent(this.getActivity(), LocationListenerService.class);
+        this.getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    protected void unBindFromLocationListener() {
+        // Unbind from the service
+        if (mBound) {
+            this.getActivity().unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     private void commitNotes() {
