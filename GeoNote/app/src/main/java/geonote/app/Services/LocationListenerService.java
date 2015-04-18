@@ -61,9 +61,14 @@ public class LocationListenerService extends Service implements
         mNotesRepository = NotesRepository.Instance;
 
         if (mNotesRepository == null) {
-            SharedPreferences settings = this.getSharedPreferences(Constants.PREFS_NOTES, 0);
-            mNotesRepository = new NotesRepository(null);
-            NotesManager.loadNotesFromLocalStore(settings, mNotesRepository);
+            loadNotes();
+            // also make sure to re-load notes if the notes are modified.
+            mNotesRepository.mNotesModifiedListener = new NotesRepository.NotesModifiedListener() {
+                @Override
+                public void OnNotesModified() {
+                    loadNotes();
+                }
+            };
         }
 
         createLocationRequest();
@@ -71,6 +76,12 @@ public class LocationListenerService extends Service implements
         buildGoogleApiClient();
 
         super.onCreate();
+    }
+
+    private void loadNotes(){
+        SharedPreferences settings = this.getSharedPreferences(Constants.PREFS_NOTES, 0);
+        mNotesRepository = new NotesRepository(null);
+        NotesManager.loadNotesFromLocalStore(settings, mNotesRepository);
     }
 
     @Override
