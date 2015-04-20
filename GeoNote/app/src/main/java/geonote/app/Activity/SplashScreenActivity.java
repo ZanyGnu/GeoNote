@@ -39,11 +39,16 @@ import geonote.app.NotesRepository;
 import geonote.app.R;
 import geonote.app.Receiver.AlarmReceiver;
 
+import io.fabric.sdk.android.Fabric;
+import com.crashlytics.android.Crashlytics;
+
 public class SplashScreenActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Fabric.with(this, new Crashlytics());
 
         setContentView(R.layout.activity_splash_screen);
 

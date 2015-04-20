@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="geonote.app"
-    android:versionCode="369"
-    android:versionName="0.0.357" >
+    android:versionCode="376"
+    android:versionName="0.0.364" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -46,6 +46,10 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="2ed34477e59464843236ef95554837c642dde196" />
 
         <activity
             android:name=".Activity.MapsActivityIntentHandler"
