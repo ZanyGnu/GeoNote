@@ -48,6 +48,14 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
 
         mSplashScreenTextView = (TextView) mCurrentView.findViewById(R.id.splashScreenText);
 
+        return mCurrentView;
+    }
+
+    @Override
+    public void onActivityCreated (Bundle savedInstanceState) {
+
+        super.onActivityCreated(savedInstanceState);
+
         mNotesManager = new NotesManager();
         mNotesRepository = new NotesRepository(new Geocoder(getActivity().getBaseContext(), Locale.getDefault()));
 
@@ -57,13 +65,6 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
             e.printStackTrace();
         }
 
-        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
-            @Override
-            public void onNotesLoaded() {
-                mSplashScreenTextView.append("\nNotes loaded.");
-                launchMainActivity();
-            }
-        };
         try{
             ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.facebook.android", 0);
             mSplashScreenTextView.append("\nLogging into facebook.");
@@ -72,7 +73,13 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
             mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
         }
 
-        return mCurrentView;
+        mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
+            @Override
+            public void onNotesLoaded() {
+                mSplashScreenTextView.append("\nNotes loaded.");
+                launchMainActivity();
+            }
+        };
     }
 
     public void loadNotes(Activity activity, final String userName) {
