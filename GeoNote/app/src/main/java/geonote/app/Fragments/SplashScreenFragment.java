@@ -35,7 +35,7 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
     NotesRepository mNotesRepository = null;
     TextView mSplashScreenTextView = null;
     Time startupTime = new Time();
-    int splashScreenShowTimeMillis = 3*1000;
+    int splashScreenShowTimeMillis = 1*1000;
 
     public SplashScreenFragment() {
         startupTime.setToNow();
