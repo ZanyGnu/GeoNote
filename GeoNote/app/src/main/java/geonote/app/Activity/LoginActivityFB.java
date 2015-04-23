@@ -92,13 +92,6 @@ public class LoginActivityFB extends ActionBarActivity {
                 public void onClick(View v)
                 {
                     populateLoggedInUser();
-
-                    ArrayList<Droplet> droplets = new ArrayList<Droplet>();
-                    droplets.add(new Droplet("DropletName1", "DropletContent 1"));
-                    droplets.add(new Droplet("DropletName2", "DropletContent 2"));
-                    droplets.add(new Droplet("DropletName3", "DropletContent 3"));
-                    new GetDropletsTask().execute("testcontainer");
-                    new SaveDropletTask().execute(new SaveDropletTask.SaveDropletTaskParam("testcontainer", droplets));
                 }
             });
 
