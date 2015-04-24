@@ -65,14 +65,6 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
             e.printStackTrace();
         }
 
-        try{
-            ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.facebook.android", 0);
-            mSplashScreenTextView.append("\nLogging into facebook.");
-        } catch( PackageManager.NameNotFoundException e ){
-            mSplashScreenTextView.append("\nNo facebook app found.");
-            mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
-        }
-
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {
@@ -80,6 +72,14 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
                 launchMainActivity();
             }
         };
+
+        try{
+            ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.facebook.android", 0);
+            mSplashScreenTextView.append("\nLogging into facebook.");
+        } catch( PackageManager.NameNotFoundException e ){
+            mSplashScreenTextView.append("\nNo facebook app found.");
+            mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
+        }
     }
 
     public void loadNotes(Activity activity, final String userName) {
