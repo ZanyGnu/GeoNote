@@ -61,7 +61,7 @@ public class NotesManager {
             new GetDropletTask() {
                 @Override
                 protected void onPostExecute(Droplet result) {
-                    final Integer notesVersionOnServer = Integer.parseInt(result.Content);
+                    final Integer notesVersionOnServer = getNotesVersion(result);
 
                     System.out.println("LoadNotes: notesVersionOnServer " + notesVersionOnServer);
                     System.out.println("LoadNotes: notesVersionLocal " + notesVersion);
@@ -102,6 +102,21 @@ public class NotesManager {
         }
     }
 
+    private Integer getNotesVersion(Droplet result) {
+        Integer notesVersionOnServerTmp = 0;
+
+        if (result == null) {
+            // result can be null if the server did not respond, or
+            // if the version did not ever exist.
+            // assume that the server version is older,
+            // and proceed to load from the local version
+            System.out.println("LoadNotes: Cloud not get any results for the notes-version");
+        } else {
+            notesVersionOnServerTmp = Integer.parseInt(result.Content);
+        }
+        return notesVersionOnServerTmp;
+    }
+
     public void commitNotes(final Activity activity, final NotesRepository notesRepository, final String userName) {
 
         final int notesVersion = notesRepository.NotesVersion;
@@ -109,12 +124,11 @@ public class NotesManager {
         if (userName != null && userName != "") {
 
             System.out.println("LoadNotes: Found logged in user");
-            ArrayList<Droplet> droplets = new ArrayList<>();
 
             new GetDropletTask() {
                 @Override
                 protected void onPostExecute(Droplet result) {
-                    final Integer notesVersionOnServer = Integer.parseInt(result.Content);
+                    final Integer notesVersionOnServer = getNotesVersion(result);
 
                     System.out.println("LoadNotes: notesVersionOnServer " + notesVersionOnServer);
                     System.out.println("LoadNotes: notesVersionLocal " + notesVersion);

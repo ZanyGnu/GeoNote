@@ -73,10 +73,11 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
             }
         };
 
-        try{
-            ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.facebook.android", 0);
+        Session session = Session.getActiveSession();
+
+        if(session!= null) {
             mSplashScreenTextView.append("\nLogging into facebook.");
-        } catch( PackageManager.NameNotFoundException e ){
+        } else {
             mSplashScreenTextView.append("\nNo facebook app found.");
             mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
         }
