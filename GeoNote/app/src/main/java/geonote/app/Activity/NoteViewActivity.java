@@ -103,7 +103,9 @@ public class NoteViewActivity extends ActionBarActivity {
         switch(id)
         {
             case R.id.action_settings:
-                break;
+                Intent myIntent = new Intent(this, SettingsActivity.class);
+                this.startActivityForResult(myIntent, Constants.ACTIVITY_SETTINGS);
+                return true;
 
             case R.id.action_delete:
                 new AlertDialog.Builder(this)
