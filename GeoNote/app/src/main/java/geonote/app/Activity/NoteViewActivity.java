@@ -129,6 +129,11 @@ public class NoteViewActivity extends ActionBarActivity {
             case R.id.action_save:
                 returnFromActivity(Constants.RESULT_SAVE_NOTE, createNoteInfoFromUserData());
                 break;
+
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                onBackPressed();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
