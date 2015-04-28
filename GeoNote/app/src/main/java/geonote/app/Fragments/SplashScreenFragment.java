@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,31 +69,36 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
         mNotesManager.mOnNotesLoadedListener  = new NotesManager.OnNotesLoadedListener() {
             @Override
             public void onNotesLoaded() {
-                mSplashScreenTextView.append("\nNotes loaded.");
+                logAndShowOnScreen("\nNotes loaded.");
                 launchMainActivity();
             }
         };
 
         Session session = Session.getActiveSession();
 
-        if(session!= null) {
-            mSplashScreenTextView.append("\nLogging into facebook.");
+        if(session!= null && session.isOpened()) {
+            logAndShowOnScreen("\nLogging into facebook.");
         } else {
-            mSplashScreenTextView.append("\nNo facebook app found.");
+            logAndShowOnScreen("\nNo facebook app/login info found.");
             mNotesManager.loadNotes(getActivity(), mNotesRepository, null);
         }
+    }
+
+    private void logAndShowOnScreen(String logText) {
+        Log.d("SplashScreen", logText);
+        mSplashScreenTextView.append(logText);
     }
 
     public void loadNotes(Activity activity, final String userName) {
 
         // TODO: Load notes only if not already loaded
-        mSplashScreenTextView.append("\nRetrieving notes.");
+        logAndShowOnScreen("\nRetrieving notes.");
         mNotesManager.loadNotes(activity, mNotesRepository, userName);
     }
 
     protected void onSessionStateChange(Session session, SessionState state, Exception exception){
         if (session != null && session.isOpened()) {
-            mSplashScreenTextView.append("\nLogged in. Getting user details.");
+            logAndShowOnScreen("\nLogged in. Getting user details.");
             Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
                 @Override
                 public void onCompleted(GraphUser user,
@@ -106,14 +112,14 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
             });
             Request.executeBatchAsync(request);
         } else {
-            mSplashScreenTextView.append("\nUser not already logged in.");
+            logAndShowOnScreen("\nUser not already logged in.");
             System.out.println("onSessionStateChange: LoadNotes: session was closed.");
             loadNotes(getActivity(), getLoggedInUsername());
         }
     }
 
     private void launchMainActivity() {
-        mSplashScreenTextView.append("\nLaunching map view.");
+        logAndShowOnScreen("\nLaunching map view.");
 
         final Fragment currentFragment = this;
         final Handler timerHandler = new Handler();
