@@ -53,11 +53,17 @@ public class LocationListenerService extends Service implements
     // Binder given to clients
     private final IBinder mBinder = new LocationListenerBinder();
 
+    public static interface OnLocationChangedListener {
+        void onLocationChanged(Location location);
+    }
+
     /**
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocationListenerBinder extends Binder {
+        public OnLocationChangedListener mOnLocationChangedListener;
+
         public LocationListenerService getService() {
             // Return this instance of LocationListenerService so clients can call public methods.
             return LocationListenerService.this;
@@ -186,6 +192,13 @@ public class LocationListenerService extends Service implements
         Log.e(TAG, "onLocationChanged");
         this.mLastLocation = location;
 
+        LocationListenerBinder binder = ((LocationListenerBinder)mBinder);
+
+        if (binder != null) {
+            if (binder.mOnLocationChangedListener != null) {
+                binder.mOnLocationChangedListener.onLocationChanged(location);
+            }
+        }
         if (!mSettings.isNotificationsEnabled()) {
             return ;
         }

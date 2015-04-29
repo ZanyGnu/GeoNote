@@ -128,6 +128,20 @@ public class MapViewFragment
                                            IBinder service) {
                 // We've bound to LocalService, cast the IBinder and get LocalService instance
                 LocationListenerService.LocationListenerBinder binder = (LocationListenerService.LocationListenerBinder) service;
+                binder.mOnLocationChangedListener = new LocationListenerService.OnLocationChangedListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        if (!mapZoomedIn)
+                        {
+                            if (mGoogleMap != null) {
+                                Log.d("onLocationChanged", "Found last location as " + location.toString());
+                                moveMapCameraToLocation(new LatLng(location.getLatitude(), location.getLongitude()));
+                                mapZoomedIn = true;
+                            }
+                        }
+                    }
+                };
+
                 mService = binder.getService();
                 mBound = true;
                 if (!mapZoomedIn)
@@ -137,6 +151,7 @@ public class MapViewFragment
                     if (lastLocation != null && mGoogleMap != null) {
                         Log.d("SetupMap", "Found last location as " + lastLocation.toString());
                         moveMapCameraToLocation(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+                        mapZoomedIn = true;
                     }
                 }
             }
@@ -268,6 +283,7 @@ public class MapViewFragment
     }
 
     protected void moveMapCameraToLocation(LatLng latLng) {
+        Log.d("MoveMap", " Moving to " + latLng.latitude + ", " + latLng.longitude);
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 1000, null);
     }
