@@ -14,10 +14,9 @@
     <string name="title_section1">All Notes</string>
     <string name="title_section2">Map View</string>
     <string name="hello_world">Hello world!</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="geo_fence_radius">geo_fence_radius</string>
-    <string name="title_activity_login_activity_fb">LoginActivityFB</string>
+    <string name="title_activity_login_activity_fb">Login</string>
     <string name="facebook_app_id">1529208040695648</string>
-    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="title_activity_splash_screen">GeoNote!</string>
 
 </resources>
