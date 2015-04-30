@@ -271,7 +271,9 @@ public class NoteViewActivity extends ActionBarActivity {
                         items[0] = "";
                         int pos = 1;
                         for (Place place : placesList) {
-                            items[pos++] = place.name;
+                            if (place != null) {
+                                items[pos++] = place.name;
+                            }
                         }
 
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
