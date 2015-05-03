@@ -106,7 +106,7 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
                     if (user != null) {
                         System.out.println("onSessionStateChange: LoadNotes: session is open. username:"+user.getName());
 
-                        loadNotes(getActivity(), getLoggedInUsername());
+                        loadNotes(getActivity(), user.getId());
                     }
                 }
             });
