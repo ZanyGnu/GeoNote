@@ -206,7 +206,7 @@ public class NoteViewActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            googlePlaces = new GooglePlaces(getString(R.string.google_maps_key));
+            googlePlaces = new GooglePlaces(getString(R.string.google_places_key));
         }
 
         protected String doInBackground(String... args) {
