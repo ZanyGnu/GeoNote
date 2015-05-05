@@ -127,6 +127,12 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
 
             @Override
             public void run() {
+                Activity currentActivity = getActivity();
+                if (currentActivity == null) {
+                    Log.d("SplashScreen", "Activity is null");
+                    return;
+                }
+
                 LaunchMainActivity(getActivity(), currentFragment);
                 SplashScreenFragment.this.getActivity().finish();
             }
@@ -141,10 +147,6 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
     }
 
     public static void LaunchMainActivity(Activity currentActivity, Fragment currentFragment) {
-        if (currentActivity == null) {
-            Log.d("SplashScreen", "Activity is null");
-            return;
-        }
         Intent myIntent = new Intent(currentActivity, MainActivity.class);
         if (currentFragment != null) {
             currentFragment.startActivityForResult(myIntent, Constants.ACTIVITY_NOTE_VIEW);
