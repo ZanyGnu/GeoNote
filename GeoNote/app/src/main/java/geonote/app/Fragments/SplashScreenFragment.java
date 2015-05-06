@@ -127,10 +127,13 @@ public class SplashScreenFragment extends BaseFacebookHandlerFragment {
 
             @Override
             public void run() {
-                Activity currentActivity = getActivity();
-                if (currentActivity == null) {
+                while((getActivity()) == null) {
                     Log.d("SplashScreen", "Activity is null");
-                    return;
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 LaunchMainActivity(getActivity(), currentFragment);
