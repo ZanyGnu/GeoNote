@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import geonote.app.Constants;
-import geonote.app.NotesManager;
+import geonote.app.Note.NotesManager;
 import geonote.app.Tasks.DownloadMapImageTask;
-import geonote.app.NoteInfo;
-import geonote.app.NotesRepository;
+import geonote.app.Note.NoteInfo;
+import geonote.app.Note.NotesRepository;
 import geonote.app.R;
 
 public class NoteListFragment

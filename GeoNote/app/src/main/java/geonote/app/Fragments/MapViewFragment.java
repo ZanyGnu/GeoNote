@@ -1,10 +1,7 @@
 package geonote.app.Fragments;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,24 +15,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -48,16 +38,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.shamanland.fab.FloatingActionButton;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
-import geonote.app.GeoFenceWatcherService;
-import geonote.app.NoteInfo;
+import geonote.app.Note.NoteInfo;
 import geonote.app.NoteInfoWindowAdapter;
-import geonote.app.NotesManager;
-import geonote.app.NotesRepository;
+import geonote.app.Note.NotesManager;
+import geonote.app.Note.NotesRepository;
 import geonote.app.R;
 import geonote.app.Services.LocationListenerService;
 import geonote.app.Settings;

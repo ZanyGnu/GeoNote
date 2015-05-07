@@ -2,8 +2,6 @@ package geonote.app.Fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,8 +23,8 @@ import java.util.Locale;
 
 import geonote.app.Activity.MainActivity;
 import geonote.app.Constants;
-import geonote.app.NotesManager;
-import geonote.app.NotesRepository;
+import geonote.app.Note.NotesManager;
+import geonote.app.Note.NotesRepository;
 import geonote.app.R;
 
 public class SplashScreenFragment extends BaseFacebookHandlerFragment {

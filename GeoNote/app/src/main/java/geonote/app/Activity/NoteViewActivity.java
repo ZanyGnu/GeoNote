@@ -30,8 +30,8 @@ import geonote.app.Constants;
 import geonote.app.Tasks.DownloadMapImageTask;
 import geonote.app.GooglePlaces.GooglePlaces;
 import geonote.app.GooglePlaces.Model.Place;
-import geonote.app.NoteInfo;
-import geonote.app.NotesRepository;
+import geonote.app.Note.NoteInfo;
+import geonote.app.Note.NotesRepository;
 import geonote.app.R;
 
 public class NoteViewActivity extends ActionBarActivity {

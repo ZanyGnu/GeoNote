@@ -11,13 +11,10 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.common.ConnectionResult;
@@ -28,9 +25,9 @@ import java.util.HashSet;
 
 import geonote.app.Activity.NoteViewActivity;
 import geonote.app.Constants;
-import geonote.app.NoteInfo;
-import geonote.app.NotesManager;
-import geonote.app.NotesRepository;
+import geonote.app.Note.NoteInfo;
+import geonote.app.Note.NotesManager;
+import geonote.app.Note.NotesRepository;
 import geonote.app.R;
 import geonote.app.Settings;
 
