@@ -6,9 +6,14 @@ import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+import geonote.app.BitmapCache;
 
 public class DownloadMapImageTask extends AsyncTask<Double, Void, Bitmap> {
     ImageView bmImage;
+    static BitmapCache mBitmapCache = new BitmapCache();
 
     String getMapURLFormat = "http://maps.googleapis.com/maps/api/staticmap"
             + "?zoom=18" +
@@ -35,8 +40,13 @@ public class DownloadMapImageTask extends AsyncTask<Double, Void, Bitmap> {
         System.out.format("URL for google maps static content: " + url);
         Bitmap mIcon11 = null;
         try {
-            InputStream in = new java.net.URL(url).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
+            mIcon11 = mBitmapCache.getBitmapFromMemCache(url);
+            if (mIcon11 == null) {
+                InputStream in = new java.net.URL(url).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+                mBitmapCache.addBitmapToMemoryCache(url, mIcon11);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
