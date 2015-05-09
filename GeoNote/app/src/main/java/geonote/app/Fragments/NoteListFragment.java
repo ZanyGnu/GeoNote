@@ -223,7 +223,8 @@ public class NoteListFragment
 
             View rowView= inflater.inflate(R.layout.notes_list_item_view, null, true);
 
-            new DownloadMapImageTask((ImageView)rowView.findViewById(R.id.mapImageHolder)).execute(
+            DownloadMapImageTask.Execute(
+                    (ImageView)rowView.findViewById(R.id.mapImageHolder),
                     (double)560,
                     (double)560,
                     noteInfo.getLatLng().latitude,

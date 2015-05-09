@@ -79,7 +79,8 @@ public class NoteViewActivity extends ActionBarActivity {
 
         mImageView = (ImageView)findViewById(R.id.noteMapImageHolder);
 
-        new DownloadMapImageTask(mImageView).execute(
+        DownloadMapImageTask.Execute(
+                mImageView,
                 (double) 600,
                 (double) 200,
                 noteInfo.getLatLng().latitude,

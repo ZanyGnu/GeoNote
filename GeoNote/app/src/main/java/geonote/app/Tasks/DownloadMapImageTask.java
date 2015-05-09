@@ -15,7 +15,7 @@ public class DownloadMapImageTask extends AsyncTask<Double, Void, Bitmap> {
     ImageView bmImage;
     static BitmapCache mBitmapCache = new BitmapCache();
 
-    String getMapURLFormat = "http://maps.googleapis.com/maps/api/staticmap"
+    private static String getMapURLFormat = "http://maps.googleapis.com/maps/api/staticmap"
             + "?zoom=18" +
             "&size=%dx%d" +
             "&markers=size:mid|color:red|"
@@ -55,6 +55,27 @@ public class DownloadMapImageTask extends AsyncTask<Double, Void, Bitmap> {
 
     protected void onPostExecute(Bitmap result) {
         bmImage.setImageBitmap(result);
+    }
+
+    public static void Execute(ImageView imageView, double height, double width, double latitude, double longitude) {
+        String url = String.format(
+                getMapURLFormat,
+                (int)height,
+                (int)width,
+                latitude,
+                longitude);
+
+        Bitmap bitmap = mBitmapCache.getBitmapFromMemCache(url);
+
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            new DownloadMapImageTask(imageView).execute(
+                    height,
+                    width,
+                    latitude,
+                    longitude);
+        }
     }
 }
 
