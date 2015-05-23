@@ -222,7 +222,7 @@ public class LocationListenerService extends Service implements
             // send the notification from the closest note only if we havent already sent it.
             // TODO - do we need to remember this for a time period too?
             if (!mSentNotifications.contains(noteInfoToNotifyOn)) {
-                sendNotification(noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
+                sendNotification(noteInfoToNotifyOn.getAddressDetails(), noteInfoToNotifyOn.toString(), noteInfoToNotifyOn);
                 mSentNotifications.add(noteInfoToNotifyOn);
             }
         }
@@ -234,13 +234,13 @@ public class LocationListenerService extends Service implements
         }
     }
 
-    protected void sendNotification(String notificationContents, NoteInfo noteInfo) {
+    protected void sendNotification(String noteTitle, String notificationContents, NoteInfo noteInfo) {
         Log.e(TAG, "sendNotification :" + "for note " + noteInfo.toString());
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getBaseContext())
                         .setSmallIcon(R.drawable.notespin)
-                        .setContentTitle("Note available at nearby location")
+                        .setContentTitle("Note at " + noteTitle)
                         .setAutoCancel(true)
                         .setContentText(notificationContents);
 
