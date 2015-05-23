@@ -237,11 +237,16 @@ public class LocationListenerService extends Service implements
     protected void sendNotification(String noteTitle, String notificationContents, NoteInfo noteInfo) {
         Log.e(TAG, "sendNotification :" + "for note " + noteInfo.toString());
 
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+        bigTextStyle.setBigContentTitle("Note at " + noteTitle);
+        bigTextStyle.bigText(notificationContents);
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getBaseContext())
                         .setSmallIcon(R.drawable.notespin)
                         .setContentTitle("Note at " + noteTitle)
                         .setAutoCancel(true)
+                        .setStyle(bigTextStyle)
                         .setContentText(notificationContents);
 
         // Creates an explicit intent for an Activity in your app
