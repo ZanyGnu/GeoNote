@@ -14,7 +14,7 @@ public class NoteInfo implements Parcelable {
     private LatLng LatLng;
     private String AddressText = "";
     private String AddressDetails = "";
-    private Boolean EnableRaisingEvents;
+    private Boolean EnableRaisingEvents = true;
     private ArrayList<String> Notes;
 
     public LatLng getLatLng() {
