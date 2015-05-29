@@ -22,7 +22,7 @@
 
         <EditTextPreference
             android:key="@string/geo_fence_radius"
-            android:title="Geo Fence Radius"
+            android:title="Geo Fence Radius (meters)"
             android:defaultValue="100"
             android:inputType="number"
             android:summary="Send notifications if you are within this many meters of the note." />
